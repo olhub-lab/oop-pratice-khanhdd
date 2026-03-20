@@ -29,7 +29,6 @@ public class Order {
 
   private static final BigDecimal DEFAULT_FEE = BigDecimal.ZERO;
   private static final BigDecimal DEFAULT_DISCOUNT = BigDecimal.ZERO;
-  private static final BigDecimal FEE_RATE = new BigDecimal("0.02");
 
   public Order(Long customerId, String customerName, BigDecimal amount,
       PaymentMethod paymentMethod) {
@@ -65,7 +64,8 @@ public class Order {
 
 
   private void calculateFinalAmount() {
-    this.feeAmount = this.amount.multiply(FEE_RATE);
+    BigDecimal currentFeeRate = this.paymentMethod.getFeeRate();
+    this.feeAmount = this.amount.multiply(currentFeeRate);
     this.finalAmount = this.amount.add(this.feeAmount).subtract(this.discountAmount);
   }
 
@@ -83,9 +83,11 @@ public class Order {
       throw new BusinessException(
           "Order [" + this.orderId + "] cannot be cancelled. Current status: " + this.status);
     }
-
+    if (reason == null || reason.isBlank()) {
+      throw new BusinessException("Cancel reason is required");
+    }
     this.status = OrderStatus.CANCELLED;
-    this.cancelReason = (reason == null || reason.isBlank()) ? "Cancelled by user" : reason;
+    this.cancelReason = reason;
 
     this.touch();
   }

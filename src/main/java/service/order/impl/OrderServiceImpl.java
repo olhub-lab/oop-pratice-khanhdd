@@ -1,6 +1,11 @@
 package service.order.impl;
 
-import dto.order.*;
+import dto.order.OrderRequest;
+import dto.order.CancelOrderResponse;
+import dto.order.OrderResponse;
+import dto.order.CancelOrderRequest;
+import dto.order.OrderFilterRequest;
+import dto.order.PageResponse;
 import exception.BadRequestException;
 import exception.NotFoundException;
 import model.Order;
@@ -17,7 +22,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
   private static final Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
-
+  private static final String SORT_AMOUNT_ASC = "amount_asc";
+  private static final String SORT_AMOUNT_DESC = "amount_desc";
+  private static final String DEFAULT_CANCEL_REASON = "Cancelled by user";
   private final OrderRepository repository;
 
   public OrderServiceImpl(OrderRepository repository) {
@@ -60,21 +67,30 @@ public class OrderServiceImpl implements OrderService {
   public PageResponse<OrderResponse> listOrders(OrderFilterRequest request) {
     logger.info("List orders with filter");
 
+    if (request.getFromDate() != null && request.getToDate() != null) {
+      if (request.getFromDate().isAfter(request.getToDate())) {
+        throw new BadRequestException("fromDate must be before or equal to toDate");
+      }
+    }
+
     List<Order> orders = repository.findAll();
 
     List<Order> filtered = orders.stream()
-        .filter(o -> request.getCustomerId() == null || o.getCustomerId().equals(request.getCustomerId()))
+        .filter(o -> request.getCustomerId() == null || o.getCustomerId()
+            .equals(request.getCustomerId()))
         .filter(o -> request.getStatus() == null || o.getStatus() == request.getStatus())
-        .filter(o -> request.getPaymentMethod() == null || o.getPaymentMethod() == request.getPaymentMethod())
-        .filter(o -> request.getFromDate() == null || !o.getCreatedAt().isBefore(request.getFromDate()))
+        .filter(o -> request.getPaymentMethod() == null
+            || o.getPaymentMethod() == request.getPaymentMethod())
+        .filter(
+            o -> request.getFromDate() == null || !o.getCreatedAt().isBefore(request.getFromDate()))
         .filter(o -> request.getToDate() == null || !o.getCreatedAt().isAfter(request.getToDate()))
         .collect(Collectors.toList());
 
     Comparator<Order> comparator = Comparator.comparing(Order::getCreatedAt).reversed();
 
-    if ("amount_asc".equals(request.getSort())) {
+    if (SORT_AMOUNT_ASC.equals(request.getSort())) { // Sử dụng biến SORT_AMOUNT_ASC
       comparator = Comparator.comparing(Order::getAmount);
-    } else if ("amount_desc".equals(request.getSort())) {
+    } else if (SORT_AMOUNT_DESC.equals(request.getSort())) { // Sử dụng biến SORT_AMOUNT_DESC
       comparator = Comparator.comparing(Order::getAmount).reversed();
     }
 
@@ -110,6 +126,9 @@ public class OrderServiceImpl implements OrderService {
     logger.info("Cancel order: orderId=" + request.getOrderId());
 
     this.validateCancelRequest(request);
+    if (request.getReason() == null || request.getReason().isBlank()) {
+      throw new BadRequestException("Cancel reason is required and cannot be empty");
+    }
 
     Order order = repository.findById(request.getOrderId())
         .orElseThrow(() -> new NotFoundException(
@@ -118,8 +137,11 @@ public class OrderServiceImpl implements OrderService {
 
     OrderStatus oldStatus = order.getStatus();
 
-    order.cancel(request.getReason());
+    String reason = (request.getReason() == null || request.getReason().isBlank())
+        ? DEFAULT_CANCEL_REASON
+        : request.getReason();
 
+    order.cancel(request.getReason());
     repository.update(order);
 
     logger.info("Order cancelled: orderId=" + order.getOrderId());
