@@ -1,10 +1,10 @@
-package repository.Implement;
+package repository.Impl;
 
 import java.util.*;
 import model.Order;
 import repository.OrderRepository;
 
-public class OrderRepositoryImplement implements OrderRepository {
+public class OrderRepositoryImpl implements OrderRepository {
 
   private final Map<String, Order> storage = new HashMap<>();
 

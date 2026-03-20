@@ -1,4 +1,4 @@
-package service.order.implement;
+package service.order.impl;
 
 import dto.order.*;
 import exception.BadRequestException;
@@ -11,47 +11,56 @@ import service.order.OrderService;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class OrderServiceImplement implements OrderService {
+public class OrderServiceImpl implements OrderService {
+
+  private static final Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
 
   private final OrderRepository repository;
 
-  public OrderServiceImplement(OrderRepository repository) {
+  public OrderServiceImpl(OrderRepository repository) {
     this.repository = repository;
   }
 
   @Override
   public OrderResponse createOrder(OrderRequest request) {
+    logger.info("Create order request: " + request);
+
     this.validateCreateRequest(request);
 
-    Order order = Order.builder()
-        .customerId(request.getCustomerId())
-        .customerName(request.getCustomerName())
-        .amount(request.getAmount())
-        .paymentMethod(request.getPaymentMethod())
-        .build();
+    Order order = new Order(
+        request.getCustomerId(),
+        request.getCustomerName(),
+        request.getAmount(),
+        request.getPaymentMethod()
+    );
 
     repository.save(order);
 
-    return mapToResponse(order);
+    logger.info("Order created successfully: orderId=" + order.getOrderId());
+
+    return this.mapToResponse(order);
   }
 
   @Override
   public OrderResponse getOrderDetail(String orderId) {
+    logger.info("Get order detail: orderId=" + orderId);
+
     this.validateOrderId(orderId);
 
     Order order = repository.findById(orderId)
-        .orElseThrow(() -> new NotFoundException("Order not found: " + orderId));
+        .orElseThrow(() -> new NotFoundException("Order not found with id: " + orderId));
 
-    return mapToResponse(order);
+    return this.mapToResponse(order);
   }
 
   @Override
   public PageResponse<OrderResponse> listOrders(OrderFilterRequest request) {
+    logger.info("List orders with filter");
 
     List<Order> orders = repository.findAll();
-
 
     List<Order> filtered = orders.stream()
         .filter(o -> request.getCustomerId() == null || o.getCustomerId().equals(request.getCustomerId()))
@@ -61,18 +70,18 @@ public class OrderServiceImplement implements OrderService {
         .filter(o -> request.getToDate() == null || !o.getCreatedAt().isAfter(request.getToDate()))
         .collect(Collectors.toList());
 
-
     Comparator<Order> comparator = Comparator.comparing(Order::getCreatedAt).reversed();
 
     if ("amount_asc".equals(request.getSort())) {
       comparator = Comparator.comparing(Order::getAmount);
+    } else if ("amount_desc".equals(request.getSort())) {
+      comparator = Comparator.comparing(Order::getAmount).reversed();
     }
 
     filtered.sort(comparator);
 
-
-    int page = request.getPage();
-    int size = request.getSize();
+    int page = request.getPage() < 0 ? 0 : request.getPage();
+    int size = request.getSize() <= 0 ? 10 : Math.min(request.getSize(), 100);
 
     int totalElements = filtered.size();
     int fromIndex = Math.min(page * size, totalElements);
@@ -85,6 +94,8 @@ public class OrderServiceImplement implements OrderService {
 
     int totalPages = (int) Math.ceil((double) totalElements / size);
 
+    logger.info("List orders success: totalElements=" + totalElements);
+
     return new PageResponse<>(
         content,
         totalElements,
@@ -94,19 +105,24 @@ public class OrderServiceImplement implements OrderService {
     );
   }
 
-
   @Override
   public CancelOrderResponse cancelOrder(CancelOrderRequest request) {
+    logger.info("Cancel order: orderId=" + request.getOrderId());
+
     this.validateCancelRequest(request);
 
     Order order = repository.findById(request.getOrderId())
-        .orElseThrow(() -> new NotFoundException("Order not found"));
+        .orElseThrow(() -> new NotFoundException(
+            "Order not found with id: " + request.getOrderId()
+        ));
 
     OrderStatus oldStatus = order.getStatus();
 
     order.cancel(request.getReason());
 
     repository.update(order);
+
+    logger.info("Order cancelled: orderId=" + order.getOrderId());
 
     return new CancelOrderResponse(
         order.getOrderId(),
@@ -118,13 +134,28 @@ public class OrderServiceImplement implements OrderService {
     );
   }
 
+
   private void validateCreateRequest(OrderRequest request) {
-    if (request == null || request.getAmount() == null) {
-      throw new BadRequestException("Invalid request");
+
+    if (request == null) {
+      throw new BadRequestException("Request must not be null");
     }
 
-    if (request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+    if (request.getCustomerId() == null) {
+      throw new BadRequestException("CustomerId is required");
+    }
+
+    if (request.getCustomerName() == null || request.getCustomerName().isBlank()) {
+      throw new BadRequestException("CustomerName is required");
+    }
+
+    if (request.getAmount() == null ||
+        request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
       throw new BadRequestException("Amount must be > 0");
+    }
+
+    if (request.getPaymentMethod() == null) {
+      throw new BadRequestException("PaymentMethod is required");
     }
   }
 
@@ -135,8 +166,8 @@ public class OrderServiceImplement implements OrderService {
   }
 
   private void validateCancelRequest(CancelOrderRequest request) {
-    if (request == null || request.getOrderId() == null) {
-      throw new BadRequestException("Invalid cancel request");
+    if (request == null || request.getOrderId() == null || request.getOrderId().isBlank()) {
+      throw new BadRequestException("OrderId is required");
     }
   }
 
