@@ -88,9 +88,9 @@ public class OrderServiceImpl implements OrderService {
 
     Comparator<Order> comparator = Comparator.comparing(Order::getCreatedAt).reversed();
 
-    if (SORT_AMOUNT_ASC.equals(request.getSort())) { // Sử dụng biến SORT_AMOUNT_ASC
+    if (SORT_AMOUNT_ASC.equals(request.getSort())) {
       comparator = Comparator.comparing(Order::getAmount);
-    } else if (SORT_AMOUNT_DESC.equals(request.getSort())) { // Sử dụng biến SORT_AMOUNT_DESC
+    } else if (SORT_AMOUNT_DESC.equals(request.getSort())) {
       comparator = Comparator.comparing(Order::getAmount).reversed();
     }
 
