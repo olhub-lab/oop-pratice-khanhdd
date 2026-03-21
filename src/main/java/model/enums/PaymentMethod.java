@@ -3,17 +3,20 @@ package model.enums;
 import java.math.BigDecimal;
 
 public enum PaymentMethod {
-  CREDIT_CARD(new BigDecimal("0.02")),
-  BANK_TRANSFER(new BigDecimal("0.00")),
-  COD(new BigDecimal("0.01"));
+  CREDIT_CARD(new BigDecimal("0.02"), BigDecimal.ZERO),
+
+  BANK_TRANSFER(new BigDecimal("0.005"), BigDecimal.ZERO),
+
+  E_WALLET(BigDecimal.ZERO, new BigDecimal("0.01"));
 
   private final BigDecimal feeRate;
+  private final BigDecimal discountRate;
 
-  PaymentMethod(BigDecimal feeRate) {
+  PaymentMethod(BigDecimal feeRate, BigDecimal discountRate) {
     this.feeRate = feeRate;
+    this.discountRate = discountRate;
   }
 
-  public BigDecimal getFeeRate() {
-    return feeRate;
-  }
+  public BigDecimal getFeeRate() { return feeRate; }
+  public BigDecimal getDiscountRate() { return discountRate; }
 }

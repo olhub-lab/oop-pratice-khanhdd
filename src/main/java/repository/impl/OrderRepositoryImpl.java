@@ -18,29 +18,29 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public void save(Order order) {
     try {
-      logger.info("Attempting to save order: " + order.getOrderId());
+      logger.info(() -> "Attempting to save order: " + order.getOrderId());
       storage.put(order.getOrderId(), order);
-      logger.info("Order saved successfully: " + order.getOrderId());
+      logger.info(() -> "Order saved successfully: " + order.getOrderId());
     } catch (Exception e) {
-      logger.log(Level.SEVERE, "Failed to save order: " + order.getOrderId(), e);
+      logger.log(Level.SEVERE, e, () -> "Failed to save order: " + order.getOrderId());
       throw e;
     }
   }
 
   @Override
   public Optional<Order> findById(String orderId) {
-    logger.info("Searching for orderId: " + orderId);
+    logger.info(() -> "Searching for orderId: " + orderId);
     Optional<Order> result = Optional.ofNullable(storage.get(orderId));
 
     if (result.isEmpty()) {
-      logger.warning("Order not found in storage: " + orderId);
+      logger.warning(() -> "Order not found in storage: " + orderId);
     }
     return result;
   }
 
   @Override
   public List<Order> findAll() {
-    logger.info("Fetching all orders from storage. Current count: " + storage.size());
+    logger.info(() -> "Fetching all orders from storage. Current count: " + storage.size());
     return new ArrayList<>(storage.values());
   }
 
@@ -48,12 +48,12 @@ public class OrderRepositoryImpl implements OrderRepository {
   public void update(Order order) {
     try {
       if (!storage.containsKey(order.getOrderId())) {
-        logger.warning("Update failed: Order does not exist: " + order.getOrderId());
+        logger.warning(() -> "Update failed: Order does not exist: " + order.getOrderId());
       }
       storage.put(order.getOrderId(), order);
-      logger.info("Order updated successfully: " + order.getOrderId());
+      logger.info(() -> "Order updated successfully: " + order.getOrderId());
     } catch (Exception e) {
-      logger.log(Level.SEVERE, "Error updating order: " + order.getOrderId(), e);
+      logger.log(Level.SEVERE, e, () -> "Error updating order: " + order.getOrderId());
       throw e;
     }
   }

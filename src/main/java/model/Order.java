@@ -32,6 +32,16 @@ public class Order {
 
   public Order(Long customerId, String customerName, BigDecimal amount,
       PaymentMethod paymentMethod) {
+    if (customerId == null || customerId <= 0) {
+      throw new IllegalArgumentException("customerId must be positive");
+    }
+
+    if (customerName == null || customerName.isBlank()) {
+      throw new IllegalArgumentException("customerName is required");
+    }
+    if (customerName.length() > 100) {
+      throw new IllegalArgumentException("customerName must not exceed 100 characters");
+    }
 
     if (customerId == null) {
       throw new IllegalArgumentException("customerId is required");
@@ -66,6 +76,12 @@ public class Order {
   private void calculateFinalAmount() {
     BigDecimal currentFeeRate = this.paymentMethod.getFeeRate();
     this.feeAmount = this.amount.multiply(currentFeeRate);
+
+    BigDecimal currentDiscountRate = this.paymentMethod.getDiscountRate();
+    BigDecimal paymentDiscount = this.amount.multiply(currentDiscountRate);
+
+    this.discountAmount = this.discountAmount.add(paymentDiscount);
+
     this.finalAmount = this.amount.add(this.feeAmount).subtract(this.discountAmount);
   }
 

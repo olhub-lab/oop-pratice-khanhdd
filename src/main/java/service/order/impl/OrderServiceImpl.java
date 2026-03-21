@@ -24,7 +24,6 @@ public class OrderServiceImpl implements OrderService {
   private static final Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
   private static final String SORT_AMOUNT_ASC = "amount_asc";
   private static final String SORT_AMOUNT_DESC = "amount_desc";
-  private static final String DEFAULT_CANCEL_REASON = "Cancelled by user";
   private final OrderRepository repository;
 
   public OrderServiceImpl(OrderRepository repository) {
@@ -33,27 +32,23 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public OrderResponse createOrder(OrderRequest request) {
-    logger.info("Create order request: " + request);
+    logger.info(() -> "Create order request: " + request);
 
     this.validateCreateRequest(request);
 
-    Order order = new Order(
-        request.getCustomerId(),
-        request.getCustomerName(),
-        request.getAmount(),
-        request.getPaymentMethod()
-    );
+    Order order = new Order(request.getCustomerId(), request.getCustomerName(), request.getAmount(),
+        request.getPaymentMethod());
 
     repository.save(order);
 
-    logger.info("Order created successfully: orderId=" + order.getOrderId());
+    logger.info(() -> "Order created successfully: orderId=" + order.getOrderId());
 
     return this.mapToResponse(order);
   }
 
   @Override
   public OrderResponse getOrderDetail(String orderId) {
-    logger.info("Get order detail: orderId=" + orderId);
+    logger.info(() -> "Get order detail: orderId=" + orderId);
 
     this.validateOrderId(orderId);
 
@@ -65,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public PageResponse<OrderResponse> listOrders(OrderFilterRequest request) {
-    logger.info("List orders with filter");
+    logger.info(() -> "List orders with filter");
 
     if (request.getFromDate() != null && request.getToDate() != null) {
       if (request.getFromDate().isAfter(request.getToDate())) {
@@ -75,13 +70,11 @@ public class OrderServiceImpl implements OrderService {
 
     List<Order> orders = repository.findAll();
 
-    List<Order> filtered = orders.stream()
-        .filter(o -> request.getCustomerId() == null || o.getCustomerId()
-            .equals(request.getCustomerId()))
-        .filter(o -> request.getStatus() == null || o.getStatus() == request.getStatus())
-        .filter(o -> request.getPaymentMethod() == null
-            || o.getPaymentMethod() == request.getPaymentMethod())
-        .filter(
+    List<Order> filtered = orders.stream().filter(
+            o -> request.getCustomerId() == null || o.getCustomerId().equals(request.getCustomerId()))
+        .filter(o -> request.getStatus() == null || o.getStatus() == request.getStatus()).filter(
+            o -> request.getPaymentMethod() == null
+                || o.getPaymentMethod() == request.getPaymentMethod()).filter(
             o -> request.getFromDate() == null || !o.getCreatedAt().isBefore(request.getFromDate()))
         .filter(o -> request.getToDate() == null || !o.getCreatedAt().isAfter(request.getToDate()))
         .collect(Collectors.toList());
@@ -103,57 +96,37 @@ public class OrderServiceImpl implements OrderService {
     int fromIndex = Math.min(page * size, totalElements);
     int toIndex = Math.min(fromIndex + size, totalElements);
 
-    List<OrderResponse> content = filtered.subList(fromIndex, toIndex)
-        .stream()
-        .map(this::mapToResponse)
-        .collect(Collectors.toList());
+    List<OrderResponse> content = filtered.subList(fromIndex, toIndex).stream()
+        .map(this::mapToResponse).collect(Collectors.toList());
 
     int totalPages = (int) Math.ceil((double) totalElements / size);
 
-    logger.info("List orders success: totalElements=" + totalElements);
+    logger.info(() -> "List orders success: totalElements=" + totalElements);
 
-    return new PageResponse<>(
-        content,
-        totalElements,
-        totalPages,
-        page < totalPages - 1,
-        page > 0
-    );
+    return new PageResponse<>(content, totalElements, totalPages, page < totalPages - 1, page > 0);
   }
 
   @Override
   public CancelOrderResponse cancelOrder(CancelOrderRequest request) {
-    logger.info("Cancel order: orderId=" + request.getOrderId());
+    logger.info(() -> "Cancel order: orderId=" + request.getOrderId());
 
     this.validateCancelRequest(request);
     if (request.getReason() == null || request.getReason().isBlank()) {
       throw new BadRequestException("Cancel reason is required and cannot be empty");
     }
 
-    Order order = repository.findById(request.getOrderId())
-        .orElseThrow(() -> new NotFoundException(
-            "Order not found with id: " + request.getOrderId()
-        ));
+    Order order = repository.findById(request.getOrderId()).orElseThrow(
+        () -> new NotFoundException("Order not found with id: " + request.getOrderId()));
 
     OrderStatus oldStatus = order.getStatus();
-
-    String reason = (request.getReason() == null || request.getReason().isBlank())
-        ? DEFAULT_CANCEL_REASON
-        : request.getReason();
 
     order.cancel(request.getReason());
     repository.update(order);
 
-    logger.info("Order cancelled: orderId=" + order.getOrderId());
+    logger.info(() -> "Order cancelled: orderId=" + order.getOrderId());
 
-    return new CancelOrderResponse(
-        order.getOrderId(),
-        oldStatus.name(),
-        order.getStatus().name(),
-        order.getCancelReason(),
-        order.getUpdatedAt(),
-        "Order cancelled successfully"
-    );
+    return new CancelOrderResponse(order.getOrderId(), oldStatus.name(), order.getStatus().name(),
+        order.getCancelReason(), order.getUpdatedAt(), "Order cancelled successfully");
   }
 
 
@@ -163,16 +136,18 @@ public class OrderServiceImpl implements OrderService {
       throw new BadRequestException("Request must not be null");
     }
 
-    if (request.getCustomerId() == null) {
-      throw new BadRequestException("CustomerId is required");
+    if (request.getCustomerId() == null || request.getCustomerId() <= 0) {
+      throw new BadRequestException("CustomerId must be positive");
     }
 
     if (request.getCustomerName() == null || request.getCustomerName().isBlank()) {
       throw new BadRequestException("CustomerName is required");
     }
+    if (request.getCustomerName().length() > 100) {
+      throw new BadRequestException("CustomerName must not exceed 100 characters");
+    }
 
-    if (request.getAmount() == null ||
-        request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+    if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
       throw new BadRequestException("Amount must be > 0");
     }
 
@@ -195,12 +170,7 @@ public class OrderServiceImpl implements OrderService {
 
 
   private OrderResponse mapToResponse(Order order) {
-    return new OrderResponse(
-        order.getOrderId(),
-        order.getCustomerName(),
-        order.getAmount(),
-        order.getFinalAmount(),
-        order.getStatus().name()
-    );
+    return new OrderResponse(order.getOrderId(), order.getCustomerName(), order.getAmount(),
+        order.getFinalAmount(), order.getStatus().name());
   }
 }
