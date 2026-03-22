@@ -54,9 +54,7 @@ public class Order {
     this.feeAmount = this.amount.multiply(currentFeeRate);
 
     BigDecimal currentDiscountRate = this.paymentMethod.getDiscountRate();
-    BigDecimal paymentDiscount = this.amount.multiply(currentDiscountRate);
-
-    this.discountAmount = this.discountAmount.add(paymentDiscount);
+    this.discountAmount = this.amount.multiply(currentDiscountRate);
 
     this.finalAmount = this.amount.add(this.feeAmount).subtract(this.discountAmount);
   }
