@@ -172,12 +172,17 @@ public class OrderServiceImpl implements OrderService {
   private OrderResponse mapToResponse(Order order) {
     return new OrderResponse(
         order.getOrderId(),
+        order.getCustomerId(),
         order.getCustomerName(),
         order.getAmount(),
         order.getFeeAmount(),
         order.getDiscountAmount(),
         order.getFinalAmount(),
-        order.getStatus().name()
+        order.getPaymentMethod().name(),
+        order.getStatus().name(),
+        order.getCreatedAt(),
+        order.getUpdatedAt(),
+        order.getCancelReason()
     );
   }
 }

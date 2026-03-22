@@ -32,30 +32,6 @@ public class Order {
 
   public Order(Long customerId, String customerName, BigDecimal amount,
       PaymentMethod paymentMethod) {
-    if (customerId == null || customerId <= 0) {
-      throw new IllegalArgumentException("customerId must be positive");
-    }
-
-    if (customerName == null || customerName.isBlank()) {
-      throw new IllegalArgumentException("customerName is required");
-    }
-    if (customerName.length() > 100) {
-      throw new IllegalArgumentException("customerName must not exceed 100 characters");
-    }
-
-    if (customerId == null) {
-      throw new IllegalArgumentException("customerId is required");
-    }
-    if (customerName == null || customerName.isBlank()) {
-      throw new IllegalArgumentException("customerName is required");
-    }
-    if (amount == null || amount.compareTo(DEFAULT_DISCOUNT) <= 0) {
-      throw new IllegalArgumentException("amount must be > 0");
-    }
-    if (paymentMethod == null) {
-      throw new IllegalArgumentException("paymentMethod is required");
-    }
-
     this.orderId = UUID.randomUUID().toString();
     this.customerId = customerId;
     this.customerName = customerName;
