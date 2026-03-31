@@ -1,23 +1,59 @@
 package dto.order;
 
+import exception.BadRequestException;
 import java.math.BigDecimal;
 import model.enums.PaymentMethod;
 
 public class OrderRequest {
+
   private Long customerId;
   private String customerName;
   private BigDecimal amount;
   private PaymentMethod paymentMethod;
 
-  public OrderRequest(Long customerId, String customerName, BigDecimal amount, PaymentMethod paymentMethod) {
+  public OrderRequest(Long customerId, String customerName, BigDecimal amount,
+      PaymentMethod paymentMethod) {
     this.customerId = customerId;
     this.customerName = customerName;
     this.amount = amount;
     this.paymentMethod = paymentMethod;
   }
 
-  public Long getCustomerId() { return customerId; }
-  public String getCustomerName() { return customerName; }
-  public BigDecimal getAmount() { return amount; }
-  public PaymentMethod getPaymentMethod() { return paymentMethod; }
+  public Long getCustomerId() {
+    return customerId;
+  }
+
+  public String getCustomerName() {
+    return customerName;
+  }
+
+  public BigDecimal getAmount() {
+    return amount;
+  }
+
+  public PaymentMethod getPaymentMethod() {
+    return paymentMethod;
+  }
+
+  public void validate() {
+    if (this.customerId == null || this.customerId <= 0) {
+      throw new BadRequestException("CustomerId must be positive");
+    }
+
+    if (this.customerName == null || this.customerName.isBlank()) {
+      throw new BadRequestException("CustomerName is required");
+    }
+
+    if (this.customerName.length() > 100) {
+      throw new BadRequestException("CustomerName must not exceed 100 characters");
+    }
+
+    if (this.amount == null || this.amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new BadRequestException("Amount must be > 0");
+    }
+
+    if (this.paymentMethod == null) {
+      throw new BadRequestException("PaymentMethod is required");
+    }
+  }
 }
