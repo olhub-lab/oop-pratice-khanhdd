@@ -1,4 +1,5 @@
 import config.DBConnection;
+import config.DatabaseConnectionProvider;
 import repository.OrderRepository;
 import repository.jdbc.MySqlOrderRepository;
 import repository.memory.OrderRepositoryImpl;
@@ -15,11 +16,11 @@ public class Main {
   private static final Logger logger = Logger.getLogger(Main.class.getName());
   private static final String STORAGE_MODE_MYSQL = "mysql";
   private static final String STORAGE_MODE_KEY = "storage.mode";
+  private static final String CONFIG_FILE = "application.properties";
 
   public static void main(String[] args) {
     final Properties props = loadProperties();
     final String storageMode = props.getProperty(STORAGE_MODE_KEY, "memory");
-
     final OrderRepository repository = buildRepository(storageMode);
     final OrderService service = new OrderServiceImpl(repository);
 
@@ -29,7 +30,8 @@ public class Main {
   private static OrderRepository buildRepository(String storageMode) {
     if (STORAGE_MODE_MYSQL.equalsIgnoreCase(storageMode)) {
       logger.info(() -> "Using MySqlOrderRepository");
-      return new MySqlOrderRepository(DBConnection.getInstance());
+      final DatabaseConnectionProvider dbProvider = new DBConnection();
+      return new MySqlOrderRepository(dbProvider);
     }
     logger.info(() -> "Using InMemoryOrderRepository");
     return new OrderRepositoryImpl();
@@ -38,14 +40,14 @@ public class Main {
   private static Properties loadProperties() {
     final Properties props = new Properties();
     try (InputStream input = Main.class.getClassLoader()
-        .getResourceAsStream("application.properties")) {
+        .getResourceAsStream(CONFIG_FILE)) {
       if (input == null) {
-        throw new IllegalStateException("application.properties not found");
+        throw new IllegalStateException("Missing application.properties file");
       }
       props.load(input);
+      return props;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to load application.properties", e);
     }
-    return props;
   }
 }

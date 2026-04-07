@@ -105,16 +105,6 @@ public class Order {
   public LocalDateTime getUpdatedAt() { return updatedAt; }
   public String getCancelReason() { return cancelReason; }
 
-  public void markSuccess() {
-    this.status = OrderStatus.SUCCESS;
-    this.touch();
-  }
-
-  public void markFailed() {
-    this.status = OrderStatus.FAILED;
-    this.touch();
-  }
-
   @Override
   public String toString() {
     return "Order{" + "orderId='" + orderId + '\'' + ", customerName='" + customerName + '\''
