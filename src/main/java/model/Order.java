@@ -83,6 +83,9 @@ public class Order {
       throw new BusinessException(
           "Order [" + this.orderId + "] cannot be cancelled. Current status: " + this.status);
     }
+    if (reason == null || reason.isBlank()) {
+      throw new IllegalArgumentException("Cancel reason is required");
+    }
     this.status = OrderStatus.CANCELLED;
     this.cancelReason = reason;
     this.touch();

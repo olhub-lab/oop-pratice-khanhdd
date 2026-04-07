@@ -37,11 +37,13 @@ public class DBConnection implements DatabaseConnectionProvider {
 
   @Override
   public Connection getConnection() throws SQLException {
+    logger.info(() -> "getConnection called");
     return mysqlDataSource.getConnection();
   }
 
   @Override
   public void closePool() {
+    logger.info(() -> "closePool called");
     if (mysqlDataSource != null && !mysqlDataSource.isClosed()) {
       mysqlDataSource.close();
       logger.info("Database Connection Pool closed.");
@@ -50,8 +52,7 @@ public class DBConnection implements DatabaseConnectionProvider {
 
   private Properties loadProperties() {
     final Properties props = new Properties();
-    try (InputStream input = DBConnection.class.getClassLoader()
-        .getResourceAsStream(CONFIG_FILE)) {
+    try (InputStream input = DBConnection.class.getClassLoader().getResourceAsStream(CONFIG_FILE)) {
       if (input == null) {
         throw new ApplicationPropertiesException("CONFIG_ERROR",
             "Missing application.properties file");
@@ -60,16 +61,14 @@ public class DBConnection implements DatabaseConnectionProvider {
       return props;
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to load application.properties", e);
-      throw new ConnectionInitException("CONFIG_ERROR",
-          "Failed to load application.properties", e);
+      throw new ConnectionInitException("CONFIG_ERROR", "Failed to load application.properties", e);
     }
   }
 
   private String getRequiredProperty(Properties props, String key) {
     final String value = props.getProperty(key);
     if (value == null || value.isBlank()) {
-      throw new ApplicationPropertiesException("CONFIG_ERROR",
-          "Missing required property: " + key);
+      throw new ApplicationPropertiesException("CONFIG_ERROR", "Missing required property: " + key);
     }
     return value;
   }

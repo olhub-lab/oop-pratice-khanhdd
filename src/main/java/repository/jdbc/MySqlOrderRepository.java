@@ -1,6 +1,7 @@
 package repository.jdbc;
 
 import config.DBConnection;
+import config.DatabaseConnectionProvider;
 import exception.database.DatabaseException;
 import model.Order;
 import model.enums.OrderStatus;
@@ -29,17 +30,17 @@ public class MySqlOrderRepository implements OrderRepository {
 
   private static final String SQL_UPDATE = "UPDATE orders SET status = ?, cancel_reason = ?, updated_at = ? WHERE order_id = ?";
 
-  private final DBConnection dbConnection;
+  private final DatabaseConnectionProvider dbProvider;
 
-  public MySqlOrderRepository(DBConnection dbConnection) {
-    this.dbConnection = dbConnection;
+  public MySqlOrderRepository(DatabaseConnectionProvider dbProvider) {
+    this.dbProvider = dbProvider;
   }
 
   @Override
   public void save(Order order) {
     logger.info(() -> "Saving order to DB: " + order.getOrderId());
 
-    try (Connection conn = dbConnection.getMysqlConnection()) {
+    try (Connection conn = dbProvider.getConnection()) {
       DatabaseUtil.beginTransaction(conn);
 
       try (PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
@@ -75,7 +76,7 @@ public class MySqlOrderRepository implements OrderRepository {
   public Optional<Order> findById(String orderId) {
     logger.info(() -> "Finding order by id: " + orderId);
 
-    try (Connection conn = dbConnection.getMysqlConnection(); PreparedStatement ps = conn.prepareStatement(
+    try (Connection conn = dbProvider.getConnection(); PreparedStatement ps = conn.prepareStatement(
         SQL_FIND_BY_ID)) {
 
       ps.setString(1, orderId);
@@ -98,7 +99,7 @@ public class MySqlOrderRepository implements OrderRepository {
 
     final List<Order> orders = new ArrayList<>();
 
-    try (Connection conn = dbConnection.getMysqlConnection(); PreparedStatement ps = conn.prepareStatement(
+    try (Connection conn = dbProvider.getConnection(); PreparedStatement ps = conn.prepareStatement(
         SQL_FIND_ALL); ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
@@ -117,7 +118,7 @@ public class MySqlOrderRepository implements OrderRepository {
   public void update(Order order) {
     logger.info(() -> "Updating order in DB: " + order.getOrderId());
 
-    try (Connection conn = dbConnection.getMysqlConnection()) {
+    try (Connection conn = dbProvider.getConnection()) {
       DatabaseUtil.beginTransaction(conn);
 
       try (PreparedStatement ps = conn.prepareStatement(SQL_UPDATE)) {

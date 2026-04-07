@@ -18,14 +18,14 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class OrderServiceImpl implements OrderService {
+public class InMemoryOrderRepository implements OrderService {
 
-  private static final Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
+  private static final Logger logger = Logger.getLogger(InMemoryOrderRepository.class.getName());
   private static final String SORT_AMOUNT_ASC = "amount_asc";
   private static final String SORT_AMOUNT_DESC = "amount_desc";
   private final OrderRepository repository;
 
-  public OrderServiceImpl(OrderRepository repository) {
+  public InMemoryOrderRepository(OrderRepository repository) {
     this.repository = repository;
   }
 
