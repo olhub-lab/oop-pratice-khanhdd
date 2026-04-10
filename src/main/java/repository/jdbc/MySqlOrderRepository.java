@@ -1,6 +1,5 @@
 package repository.jdbc;
 
-import config.DBConnection;
 import config.DatabaseConnectionProvider;
 import exception.database.DatabaseException;
 import model.Order;
@@ -38,13 +37,13 @@ public class MySqlOrderRepository implements OrderRepository {
 
   @Override
   public void save(Order order) {
-    logger.info(() -> "Saving order to DB: " + order.getOrderId());
+    logger.info(() -> "Saving order to DB: " + order.getOrder());
 
     try (Connection conn = dbProvider.getConnection()) {
       DatabaseUtil.beginTransaction(conn);
 
       try (PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
-        ps.setString(1, order.getOrderId());
+        ps.setString(1, order.getOrder());
         ps.setLong(2, order.getCustomerId());
         ps.setString(3, order.getCustomerName());
         ps.setBigDecimal(4, order.getAmount());
@@ -60,11 +59,11 @@ public class MySqlOrderRepository implements OrderRepository {
         ps.executeUpdate();
         DatabaseUtil.commitTransaction(conn);
 
-        logger.info(() -> "Order saved successfully: " + order.getOrderId());
+        logger.info(() -> "Order saved successfully: " + order.getOrder());
 
       } catch (SQLException e) {
         DatabaseUtil.rollback(conn);
-        throw new DatabaseException("Failed to save order: " + order.getOrderId(), e);
+        throw new DatabaseException("Failed to save order: " + order.getOrder(), e);
       }
 
     } catch (SQLException e) {
@@ -99,8 +98,9 @@ public class MySqlOrderRepository implements OrderRepository {
 
     final List<Order> orders = new ArrayList<>();
 
-    try (Connection conn = dbProvider.getConnection(); PreparedStatement ps = conn.prepareStatement(
-        SQL_FIND_ALL); ResultSet rs = ps.executeQuery()) {
+    try (Connection conn = dbProvider.getConnection();
+        PreparedStatement ps = conn.prepareStatement(SQL_FIND_ALL);
+        ResultSet rs = ps.executeQuery()) {
 
       while (rs.next()) {
         orders.add(this.mapToOrder(rs));
@@ -116,7 +116,7 @@ public class MySqlOrderRepository implements OrderRepository {
 
   @Override
   public void update(Order order) {
-    logger.info(() -> "Updating order in DB: " + order.getOrderId());
+    logger.info(() -> "Updating order in DB: " + order.getOrder());
 
     try (Connection conn = dbProvider.getConnection()) {
       DatabaseUtil.beginTransaction(conn);
@@ -125,16 +125,16 @@ public class MySqlOrderRepository implements OrderRepository {
         ps.setString(1, order.getStatus().name());
         ps.setString(2, order.getCancelReason());
         ps.setTimestamp(3, Timestamp.valueOf(order.getUpdatedAt()));
-        ps.setString(4, order.getOrderId());
+        ps.setString(4, order.getOrder());
 
         ps.executeUpdate();
         DatabaseUtil.commitTransaction(conn);
 
-        logger.info(() -> "Order updated successfully: " + order.getOrderId());
+        logger.info(() -> "Order updated successfully: " + order.getOrder());
 
       } catch (SQLException e) {
         DatabaseUtil.rollback(conn);
-        throw new DatabaseException("Failed to update order: " + order.getOrderId(), e);
+        throw new DatabaseException("Failed to update order: " + order.getOrder(), e);
       }
 
     } catch (SQLException e) {

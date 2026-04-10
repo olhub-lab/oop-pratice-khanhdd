@@ -18,14 +18,14 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class InMemoryOrderRepository implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
-  private static final Logger logger = Logger.getLogger(InMemoryOrderRepository.class.getName());
+  private static final Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
   private static final String SORT_AMOUNT_ASC = "amount_asc";
   private static final String SORT_AMOUNT_DESC = "amount_desc";
   private final OrderRepository repository;
 
-  public InMemoryOrderRepository(OrderRepository repository) {
+  public OrderServiceImpl(OrderRepository repository) {
     this.repository = repository;
   }
 
@@ -44,7 +44,7 @@ public class InMemoryOrderRepository implements OrderService {
 
     repository.save(order);
 
-    logger.info(() -> "Order created successfully: orderId=" + order.getOrderId());
+    logger.info(() -> "Order created successfully: orderId=" + order.getOrder());
 
     return this.mapToResponse(order);
   }
@@ -113,7 +113,7 @@ public class InMemoryOrderRepository implements OrderService {
   public CancelOrderResponse cancelOrder(CancelOrderRequest request) {
     logger.info(() -> "Cancel order: orderId=" + request.getOrderId());
 
-    this.validateCancelRequest(request);
+    request.validate();
 
     Order order = repository.findById(request.getOrderId()).orElseThrow(
         () -> new NotFoundException("Order not found with id: " + request.getOrderId()));
@@ -123,10 +123,13 @@ public class InMemoryOrderRepository implements OrderService {
     order.cancel(request.getReason());
     repository.update(order);
 
-    logger.info(() -> "Order cancelled: orderId=" + order.getOrderId());
+    logger.info(() -> "Order cancelled: orderId=" + order.getOrder());
 
-    return new CancelOrderResponse(order.getOrderId(), oldStatus.name(), order.getStatus().name(),
-        order.getCancelReason(), order.getUpdatedAt(), "Order cancelled successfully");
+    return new CancelOrderResponse(order.getOrder(),
+        oldStatus.name(),
+        order.getStatus().name(),
+        order.getCancelReason(),
+        order.getUpdatedAt(), "Order cancelled successfully");
   }
 
   private void validateOrderId(String orderId) {
@@ -135,23 +138,18 @@ public class InMemoryOrderRepository implements OrderService {
     }
   }
 
-  private void validateCancelRequest(CancelOrderRequest request) {
-    if (request == null || request.getOrderId() == null || request.getOrderId().isBlank()) {
-      throw new BadRequestException("OrderId is required");
-    }
-    if (request.getReason() == null || request.getReason().isBlank()) {
-      throw new BadRequestException("Cancel reason is required");
-    }
-    if (request.getReason().length() > 500) {
-      throw new BadRequestException("Cancel reason must not exceed 500 characters");
-    }
-  }
-
-
   private OrderResponse mapToResponse(Order order) {
-    return new OrderResponse(order.getOrderId(), order.getCustomerId(), order.getCustomerName(),
-        order.getAmount(), order.getFeeAmount(), order.getDiscountAmount(), order.getFinalAmount(),
-        order.getPaymentMethod().name(), order.getStatus().name(), order.getCreatedAt(),
-        order.getUpdatedAt(), order.getCancelReason());
+    return new OrderResponse(order.getOrder(),
+        order.getCustomerId(),
+        order.getCustomerName(),
+        order.getAmount(),
+        order.getFeeAmount(),
+        order.getDiscountAmount(),
+        order.getFinalAmount(),
+        order.getPaymentMethod().name(),
+        order.getStatus().name(),
+        order.getCreatedAt(),
+        order.getUpdatedAt(),
+        order.getCancelReason());
   }
 }

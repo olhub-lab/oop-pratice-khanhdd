@@ -18,11 +18,11 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public void save(Order order) {
     try {
-      logger.info(() -> "Attempting to save order: " + order.getOrderId());
-      storage.put(order.getOrderId(), order);
-      logger.info(() -> "Order saved successfully: " + order.getOrderId());
+      logger.info(() -> "Attempting to save order: " + order.getOrder());
+      storage.put(order.getOrder(), order);
+      logger.info(() -> "Order saved successfully: " + order.getOrder());
     } catch (Exception e) {
-      logger.log(Level.SEVERE, e, () -> "Failed to save order: " + order.getOrderId());
+      logger.log(Level.SEVERE, e, () -> "Failed to save order: " + order.getOrder());
       throw e;
     }
   }
@@ -47,13 +47,13 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public void update(Order order) {
     try {
-      if (!storage.containsKey(order.getOrderId())) {
-        logger.warning(() -> "Update failed: Order does not exist: " + order.getOrderId());
+      if (!storage.containsKey(order.getOrder())) {
+        logger.warning(() -> "Update failed: Order does not exist: " + order.getOrder());
       }
-      storage.put(order.getOrderId(), order);
-      logger.info(() -> "Order updated successfully: " + order.getOrderId());
+      storage.put(order.getOrder(), order);
+      logger.info(() -> "Order updated successfully: " + order.getOrder());
     } catch (Exception e) {
-      logger.log(Level.SEVERE, e, () -> "Error updating order: " + order.getOrderId());
+      logger.log(Level.SEVERE, e, () -> "Error updating order: " + order.getOrder());
       throw e;
     }
   }

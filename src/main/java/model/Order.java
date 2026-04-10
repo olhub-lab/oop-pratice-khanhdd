@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class Order {
 
-  private final String orderId;
+  private final String order;
   private final Long customerId;
   private final String customerName;
 
@@ -32,7 +32,7 @@ public class Order {
 
   public Order(Long customerId, String customerName, BigDecimal amount,
       PaymentMethod paymentMethod) {
-    this.orderId = UUID.randomUUID().toString();
+    this.order = UUID.randomUUID().toString();
     this.customerId = customerId;
     this.customerName = customerName;
     this.amount = amount;
@@ -49,7 +49,7 @@ public class Order {
   }
 
   private Order(Builder builder) {
-    this.orderId = builder.orderId;
+    this.order = builder.orderId;
     this.customerId = builder.customerId;
     this.customerName = builder.customerName;
     this.amount = builder.amount;
@@ -81,7 +81,7 @@ public class Order {
   public void cancel(String reason) {
     if (this.status != OrderStatus.PENDING) {
       throw new BusinessException(
-          "Order [" + this.orderId + "] cannot be cancelled. Current status: " + this.status);
+          "Order [" + this.order + "] cannot be cancelled. Current status: " + this.status);
     }
     if (reason == null || reason.isBlank()) {
       throw new IllegalArgumentException("Cancel reason is required");
@@ -95,7 +95,7 @@ public class Order {
     this.updatedAt = LocalDateTime.now();
   }
 
-  public String getOrderId() { return orderId; }
+  public String getOrder() { return order; }
   public Long getCustomerId() { return customerId; }
   public String getCustomerName() { return customerName; }
   public BigDecimal getAmount() { return amount; }
@@ -110,7 +110,7 @@ public class Order {
 
   @Override
   public String toString() {
-    return "Order{" + "orderId='" + orderId + '\'' + ", customerName='" + customerName + '\''
+    return "Order{" + "orderId='" + order + '\'' + ", customerName='" + customerName + '\''
         + ", amount=" + amount + ", finalAmount=" + finalAmount + ", status=" + status + '}';
   }
 

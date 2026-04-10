@@ -4,7 +4,7 @@ import repository.OrderRepository;
 import repository.jdbc.MySqlOrderRepository;
 import repository.memory.OrderRepositoryImpl;
 import service.order.OrderService;
-import service.order.impl.InMemoryOrderRepository;
+import service.order.impl.OrderServiceImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ public class Main {
     final Properties props = loadProperties();
     final String storageMode = props.getProperty(STORAGE_MODE_KEY, "memory");
     final OrderRepository repository = buildRepository(storageMode);
-    final OrderService service = new InMemoryOrderRepository(repository);
+    final OrderService service = new OrderServiceImpl(repository);
 
     logger.info(() -> "Application started with storage mode: " + storageMode);
   }
@@ -33,7 +33,7 @@ public class Main {
       final DatabaseConnectionProvider dbProvider = new DBConnection();
       return new MySqlOrderRepository(dbProvider);
     }
-    logger.info(() -> "Using InMemoryOrderRepository");
+    logger.info(() -> "Using OrderServiceImpl");
     return new OrderRepositoryImpl();
   }
 
