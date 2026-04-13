@@ -17,9 +17,15 @@ public class OrderFilterRequest {
   private Integer size = 10;
 
   private String sort;
-  public OrderFilterRequest(Long customerId, OrderStatus status, PaymentMethod paymentMethod,
-      LocalDateTime fromDate, LocalDateTime toDate,
-      String sort, int page, int size) {
+  public OrderFilterRequest(
+      Long customerId,
+      OrderStatus status,
+      PaymentMethod paymentMethod,
+      LocalDateTime fromDate,
+      LocalDateTime toDate,
+      String sort,
+      int page,
+      int size) {
     this.customerId = customerId;
     this.status = status;
     this.paymentMethod = paymentMethod;

@@ -11,7 +11,8 @@ public class CancelOrderResponse {
   private final LocalDateTime cancelledAt;
   private final String message;
 
-  public CancelOrderResponse(String orderId,
+  public CancelOrderResponse(
+      String orderId,
       String previousStatus,
       String currentStatus,
       String reason,

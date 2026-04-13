@@ -10,7 +10,12 @@ public class PaymentResponse {
   private final String status;
   private final LocalDateTime createdAt;
 
-  public PaymentResponse(String paymentId, String orderId, BigDecimal finalAmount, String status, LocalDateTime createdAt) {
+  public PaymentResponse(
+      String paymentId,
+      String orderId,
+      BigDecimal finalAmount,
+      String status,
+      LocalDateTime createdAt) {
     this.paymentId = paymentId;
     this.orderId = orderId;
     this.finalAmount = finalAmount;

@@ -38,7 +38,8 @@ public class Main {
     }
   }
 
-  private static void runDemo(CustomerService customerService,
+  private static void runDemo(
+      CustomerService customerService,
       OrderService orderService,
       PaymentService paymentService) {
 

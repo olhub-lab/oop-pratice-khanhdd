@@ -15,9 +15,11 @@ public class Payment {
   private final LocalDateTime createdAt;
   private final PaymentStatus status;
 
-  public Payment(String orderId, BigDecimal finalAmount,
-      PaymentMethod paymentMethod, PaymentStatus status) {
-
+  public Payment(
+      String orderId,
+      BigDecimal finalAmount,
+      PaymentMethod paymentMethod,
+      PaymentStatus status) {
     this.paymentId = UUID.randomUUID().toString();
     this.orderId = orderId;
     this.finalAmount = finalAmount;
@@ -26,8 +28,13 @@ public class Payment {
     this.status = status;
   }
 
-  public Payment(String paymentId, String orderId, BigDecimal finalAmount,
-      PaymentMethod paymentMethod, LocalDateTime createdAt, PaymentStatus status) {
+  public Payment(
+      String paymentId,
+      String orderId,
+      BigDecimal finalAmount,
+      PaymentMethod paymentMethod,
+      LocalDateTime createdAt,
+      PaymentStatus status) {
     this.paymentId = paymentId;
     this.orderId = orderId;
     this.finalAmount = finalAmount;

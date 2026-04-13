@@ -23,7 +23,6 @@ public class DBConnection {
         throw new ApplicationPropertiesException("Không tìm thấy file application.properties");
       }
       props.load(input);
-
       HikariConfig config = new HikariConfig();
 
       config.setJdbcUrl(props.getProperty("mysql.url"));

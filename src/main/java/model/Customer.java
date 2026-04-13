@@ -4,26 +4,26 @@ import java.time.LocalDateTime;
 
 public class Customer {
 
-  private final Long id;
+  private final String id;
   private String name;
   private String phone;
   private final LocalDateTime createdAt;
 
-  public Customer(Long id, String name, String phone) {
+  public Customer(String id, String name, String phone) {
     this.id = id;
     this.name = name;
     this.phone = phone;
     this.createdAt = LocalDateTime.now();
   }
 
-  public Customer(Long id, String name, String phone, LocalDateTime createdAt) {
+  public Customer(String id, String name, String phone, LocalDateTime createdAt) {
     this.id = id;
     this.name = name;
     this.phone = phone;
     this.createdAt = createdAt;
   }
 
-  public Long getId() {
+  public String getId() {
     return id;
   }
 

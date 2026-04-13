@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Order {
 
   private final String id;
-  private final Long customerId;
+  private final String customerId;
   private final String customerName;
 
   private final BigDecimal amount;
@@ -83,7 +83,7 @@ public class Order {
     return id;
   }
 
-  public Long getCustomerId() {
+  public String getCustomerId() {
     return customerId;
   }
 

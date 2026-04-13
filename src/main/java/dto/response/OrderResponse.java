@@ -18,9 +18,19 @@ public class OrderResponse {
   private final LocalDateTime updatedAt;
   private final String cancelReason;
 
-  public OrderResponse(String orderId, Long customerId, String customerName, BigDecimal amount,
-      BigDecimal feeAmount, BigDecimal discountAmount, BigDecimal finalAmount, String paymentMethod,
-      String status, LocalDateTime createdAt, LocalDateTime updatedAt, String cancelReason) {
+  public OrderResponse(
+      String orderId,
+      Long customerId,
+      String customerName,
+      BigDecimal amount,
+      BigDecimal feeAmount,
+      BigDecimal discountAmount,
+      BigDecimal finalAmount,
+      String paymentMethod,
+      String status,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt,
+      String cancelReason) {
     this.orderId = orderId;
     this.customerId = customerId;
     this.customerName = customerName;
