@@ -40,10 +40,15 @@ public class Main {
     }
   }
 
-  private static void runDemo(
-      CustomerService customerService,
+  private static void runDemo(CustomerService customerService,
       OrderService orderService,
       PaymentService paymentService) {
 
+    CustomerRequest request = new CustomerRequest("Khanh Đặng", "0329900221");
+    CustomerResponse response = customerService.create(request);
+    System.out.println("Đã tạo khách hàng: " + response.getName() + " với ID: " + response.getId());
+
+    System.out.println("Danh sách khách hàng hiện có:");
+    customerService.getAll().forEach(c -> System.out.println("- " + c.getName()));
   }
 }
