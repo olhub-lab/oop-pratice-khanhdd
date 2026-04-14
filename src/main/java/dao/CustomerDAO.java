@@ -8,7 +8,7 @@ public interface CustomerDAO {
 
   Customer save(Customer customer);
 
-  Optional<Customer> findById(Long id);
+  Optional<Customer> findById(String id);
 
   Optional<Customer> findByPhone(String phone);
 

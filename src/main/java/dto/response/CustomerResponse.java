@@ -3,19 +3,19 @@ package dto.response;
 import java.time.LocalDateTime;
 
 public class CustomerResponse {
-  private final Long id;
+  private final String id;
   private final String name;
   private final String phone;
   private final LocalDateTime createdAt;
 
-  public CustomerResponse(Long id, String name, String phone, LocalDateTime createdAt) {
+  public CustomerResponse(String id, String name, String phone, LocalDateTime createdAt) {
     this.id = id;
     this.name = name;
     this.phone = phone;
     this.createdAt = createdAt;
   }
 
-  public Long getId() {
+  public String getId() {
     return id;
   }
 

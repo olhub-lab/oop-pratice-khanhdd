@@ -24,7 +24,7 @@ public class Main {
       OrderDAO orderDAO = new OrderDAOImpl();
       PaymentDAO paymentDAO = new PaymentDAOImpl();
 
-      CustomerService customerService = new CustomerServiceImpl();
+      CustomerService customerService = new CustomerServiceImpl(customerDAO);
       PaymentService paymentService = new PaymentServiceImpl();
       OrderService orderService = new OrderServiceImpl();
 

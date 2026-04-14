@@ -6,7 +6,7 @@ import model.enums.PaymentMethod;
 
 public class OrderFilterRequest {
 
-  private Long customerId;
+  private String customerId;
   private OrderStatus status;
   private PaymentMethod paymentMethod;
 
@@ -18,7 +18,7 @@ public class OrderFilterRequest {
 
   private String sort;
   public OrderFilterRequest(
-      Long customerId,
+      String customerId,
       OrderStatus status,
       PaymentMethod paymentMethod,
       LocalDateTime fromDate,
@@ -37,7 +37,7 @@ public class OrderFilterRequest {
   }
 
 
-  public Long getCustomerId() {
+  public String getCustomerId() {
     return customerId;
   }
 

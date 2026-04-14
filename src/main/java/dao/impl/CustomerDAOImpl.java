@@ -13,7 +13,7 @@ public class CustomerDAOImpl implements CustomerDAO {
   }
 
   @Override
-  public Optional<Customer> findById(Long id) {
+  public Optional<Customer> findById(String id) {
     return Optional.empty();
   }
 
