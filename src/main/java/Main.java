@@ -6,6 +6,8 @@ import dao.PaymentDAO;
 import dao.impl.CustomerDAOImpl;
 import dao.impl.OrderDAOImpl;
 import dao.impl.PaymentDAOImpl;
+import dto.request.CustomerRequest;
+import dto.response.CustomerResponse;
 import service.customer.CustomerService;
 import service.customer.impl.CustomerServiceImpl;
 import service.order.OrderService;
