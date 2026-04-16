@@ -19,12 +19,8 @@ public class CustomerDAOImpl implements CustomerDAO {
 
   @Override
   public Customer save(Connection conn, Customer customer) {
-    logger.info(() -> "Đang thực hiện lưu thông tin khách hàng: " + customer.getName());
     String sql = "INSERT INTO customers (id, name, phone, created_at) VALUES (?, ?, ?, ?)";
-
-    if (logger.isLoggable(Level.FINE)) {
-      logger.fine(() -> "Thực thi SQL: " + sql + " [ID: " + customer.getId() + "]");
-    }
+    logger.fine("Executing SQL: " + sql);
 
     PreparedStatement ps = null;
     try {
@@ -35,11 +31,11 @@ public class CustomerDAOImpl implements CustomerDAO {
       ps.setTimestamp(4, Timestamp.valueOf(customer.getCreatedAt()));
 
       ps.executeUpdate();
-      logger.info(() -> "Lưu thành công khách hàng vào cơ sở dữ liệu.");
+      logger.info("Customer data saved to database.");
       return customer;
     } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi khi thực hiện lệnh SQL lưu khách hàng: " + customer.getName(), e);
-      throw new DatabaseException("Lỗi khi lưu khách hàng vào DB: " + customer.getName(), e);
+      logger.log(Level.SEVERE, "Error executing save customer: " + customer.getName(), e);
+      throw new DatabaseException("Database error during save", e);
     } finally {
       DatabaseUtil.close(ps);
     }
@@ -47,8 +43,8 @@ public class CustomerDAOImpl implements CustomerDAO {
 
   @Override
   public Optional<Customer> findById(String id) {
-    logger.fine(() -> "Đang tìm kiếm khách hàng theo ID: " + id);
     String sql = "SELECT * FROM customers WHERE id = ?";
+    logger.fine("Executing SQL: " + sql);
 
     try (Connection conn = DBConnection.getInstance().getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -56,21 +52,19 @@ public class CustomerDAOImpl implements CustomerDAO {
       ps.setString(1, id);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
-          logger.fine(() -> "Đã tìm thấy khách hàng ID: " + id);
           return Optional.of(mapToEntity(rs));
         }
       }
     } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi truy vấn tìm khách hàng theo ID: " + id, e);
-      throw new DatabaseException("Lỗi khi tìm khách hàng theo ID: " + id, e);
+      throw new DatabaseException("Error finding customer by ID: " + id, e);
     }
     return Optional.empty();
   }
 
   @Override
   public Optional<Customer> findByPhone(String phone) {
-    logger.fine(() -> "Đang tìm kiếm khách hàng theo số điện thoại: " + phone);
     String sql = "SELECT * FROM customers WHERE phone = ?";
+    logger.fine("Executing SQL: " + sql);
 
     try (Connection conn = DBConnection.getInstance().getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -78,21 +72,19 @@ public class CustomerDAOImpl implements CustomerDAO {
       ps.setString(1, phone);
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) {
-          logger.fine(() -> "Đã tìm thấy khách hàng có số điện thoại: " + phone);
           return Optional.of(mapToEntity(rs));
         }
       }
     } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi truy vấn theo số điện thoại: " + phone, e);
-      throw new DatabaseException("Lỗi khi tìm khách hàng theo số điện thoại: " + phone, e);
+      throw new DatabaseException("Error finding customer by phone: " + phone, e);
     }
     return Optional.empty();
   }
 
   @Override
   public List<Customer> findAll() {
-    logger.info(() -> "Đang lấy danh sách toàn bộ khách hàng từ cơ sở dữ liệu.");
     String sql = "SELECT * FROM customers";
+    logger.info("Fetching all customers from database.");
     List<Customer> customers = new ArrayList<>();
 
     try (Connection conn = DBConnection.getInstance().getConnection();
@@ -102,12 +94,10 @@ public class CustomerDAOImpl implements CustomerDAO {
       while (rs.next()) {
         customers.add(mapToEntity(rs));
       }
-      logger.info(() -> "Lấy danh sách khách hàng thành công. Tổng số: " + customers.size());
+      return customers;
     } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi khi lấy danh sách khách hàng", e);
-      throw new DatabaseException("Lỗi khi lấy danh sách khách hàng", e);
+      throw new DatabaseException("Error fetching all customers", e);
     }
-    return customers;
   }
 
   private Customer mapToEntity(ResultSet rs) throws SQLException {

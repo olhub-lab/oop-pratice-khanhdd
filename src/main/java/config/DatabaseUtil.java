@@ -15,10 +15,10 @@ public class DatabaseUtil {
     try {
       if (conn != null && conn.getAutoCommit()) {
         conn.setAutoCommit(false);
-        logger.fine(() -> "Giao dịch bắt đầu (Đã tắt auto-commit)");
+        logger.fine("Transaction started (Auto-commit disabled).");
       }
     } catch (SQLException e) {
-      throw new DatabaseException("Không thể bắt đầu giao dịch", e);
+      throw new DatabaseException("Could not start transaction.", e);
     }
   }
 
@@ -27,10 +27,10 @@ public class DatabaseUtil {
       if (conn != null && !conn.getAutoCommit()) {
         conn.commit();
         conn.setAutoCommit(true);
-        logger.info(() -> "Giao dịch đã được xác nhận (Commit) thành công.");
+        logger.info("Transaction committed successfully.");
       }
     } catch (SQLException e) {
-      throw new DatabaseException("Lỗi khi xác nhận giao dịch", e);
+      throw new DatabaseException("Could not commit transaction.", e);
     }
   }
 
@@ -39,9 +39,9 @@ public class DatabaseUtil {
       try {
         conn.rollback();
         conn.setAutoCommit(true);
-        logger.info(() -> "Đã hoàn tác dữ liệu (Rollback) do có lỗi xảy ra.");
+        logger.warning("Transaction rolled back due to an error.");
       } catch (SQLException e) {
-        logger.log(Level.SEVERE, "Lỗi nghiêm trọng khi rollback!", e);
+        logger.log(Level.SEVERE, "Critical error: Failed to rollback transaction!", e);
       }
     }
   }
@@ -51,7 +51,7 @@ public class DatabaseUtil {
       try {
         resource.close();
       } catch (Exception e) {
-        logger.log(Level.SEVERE, "Không thể đóng tài nguyên hệ thống", e);
+        logger.log(Level.SEVERE, "Could not close JDBC resource.", e);
       }
     }
   }

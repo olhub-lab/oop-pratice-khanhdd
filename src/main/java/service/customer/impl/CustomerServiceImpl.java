@@ -6,7 +6,8 @@ import dao.CustomerDAO;
 import dto.request.CustomerRequest;
 import dto.response.CustomerResponse;
 import exception.NotFoundException;
-import exception.database.DatabaseException;
+import exception.database.DuplicateRecordException;
+import exception.database.ServiceException;
 import model.Customer;
 import service.customer.CustomerService;
 
@@ -29,27 +30,37 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   public CustomerResponse create(CustomerRequest request) {
-    logger.info(() -> "Bắt đầu quy trình tạo mới khách hàng: " + request.getName());
+    logger.info("Starting customer creation: " + request.getName());
     request.validate();
 
     Connection conn = null;
     try {
       conn = DBConnection.getInstance().getConnection();
+
+      if (customerDAO.findByPhone(request.getPhone()).isPresent()) {
+        logger.warning("Customer creation aborted: Phone already exists.");
+        throw new DuplicateRecordException("Phone number already registered.");
+      }
+
       DatabaseUtil.beginTransaction(conn);
 
-      Customer customer = new Customer(UUID.randomUUID().toString(), request.getName(),
-          request.getPhone());
+      Customer customer = new Customer(
+          UUID.randomUUID().toString(),
+          request.getName(),
+          request.getPhone()
+      );
+
       Customer savedCustomer = customerDAO.save(conn, customer);
 
       DatabaseUtil.commitTransaction(conn);
-      logger.info(() -> "Tạo khách hàng thành công. ID hệ thống: " + savedCustomer.getId());
+      logger.info("Customer created successfully with ID: " + savedCustomer.getId());
 
       return mapToResponse(savedCustomer);
 
     } catch (Exception e) {
       DatabaseUtil.rollbackTransaction(conn);
-      logger.severe(() -> "Quy trình tạo khách hàng thất bại, đã hoàn tác dữ liệu: " + e.getMessage());
-      throw new DatabaseException("Lỗi hệ thống khi truy vấn dữ liệu", e);
+      logger.severe("Customer creation failed: " + e.getMessage());
+      throw new ServiceException("System error during customer creation", e);
     } finally {
       DatabaseUtil.close(conn);
     }
@@ -57,55 +68,32 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   public CustomerResponse getById(String id) {
-    logger.info(() -> "Đang truy vấn thông tin khách hàng theo ID: " + id);
-    Connection conn = null;
-    try {
-      conn = DBConnection.getInstance().getConnection();
-      return customerDAO.findById(id).map(this::mapToResponse).orElseThrow(() -> {
-        logger.warning("Không tìm thấy khách hàng với ID: " + id);
-        return new NotFoundException("Customer", id);
-      });
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi kết nối khi tìm khách hàng theo ID", e);
-      throw new DatabaseException("Lỗi hệ thống khi truy vấn dữ liệu", e);
-    } finally {
-      DatabaseUtil.close(conn);
-    }
+    logger.info("Querying customer by ID: " + id);
+    return customerDAO.findById(id)
+        .map(this::mapToResponse)
+        .orElseThrow(() -> {
+          logger.warning("Customer not found with ID: " + id);
+          return new NotFoundException("Customer", id);
+        });
   }
 
   @Override
   public List<CustomerResponse> getAll() {
-    logger.info(() -> "Đang lấy danh sách toàn bộ khách hàng.");
-
-    Connection conn = null;
-    try {
-      conn = DBConnection.getInstance().getConnection();
-      return customerDAO.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi kết nối khi lấy danh sách khách hàng", e);
-      throw new DatabaseException("Lỗi hệ thống khi truy vấn dữ liệu", e);
-    } finally {
-      DatabaseUtil.close(conn);
-    }
+    logger.info("Querying all customers.");
+    return customerDAO.findAll().stream()
+        .map(this::mapToResponse)
+        .collect(Collectors.toList());
   }
 
   @Override
   public CustomerResponse getByPhone(String phone) {
-    logger.info(() ->"Đang truy vấn khách hàng theo số điện thoại: " + phone);
-
-    Connection conn = null;
-    try {
-      conn = DBConnection.getInstance().getConnection();
-      return customerDAO.findByPhone(phone).map(this::mapToResponse).orElseThrow(() -> {
-        logger.warning(() -> "Không tìm thấy số điện thoại: " + phone);
-        return new NotFoundException("Không tìm thấy khách hàng với số điện thoại: " + phone);
-      });
-    } catch (SQLException e) {
-      logger.log(Level.SEVERE, "Lỗi kết nối khi tìm khách hàng theo số điện thoại", e);
-      throw new DatabaseException("Lỗi hệ thống khi truy vấn dữ liệu", e);
-    } finally {
-      DatabaseUtil.close(conn);
-    }
+    logger.info("Querying customer by phone: " + phone);
+    return customerDAO.findByPhone(phone)
+        .map(this::mapToResponse)
+        .orElseThrow(() -> {
+          logger.warning("Customer not found with phone: " + phone);
+          return new NotFoundException("Customer not found with phone: " + phone);
+        });
   }
 
   private CustomerResponse mapToResponse(Customer customer) {
@@ -113,6 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.getId(),
         customer.getName(),
         customer.getPhone(),
-        customer.getCreatedAt());
+        customer.getCreatedAt()
+    );
   }
 }

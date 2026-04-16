@@ -44,7 +44,7 @@ public class Main {
       OrderService orderService,
       PaymentService paymentService) {
 
-    CustomerRequest request = new CustomerRequest("Khanh Đặng", "0329900221");
+    CustomerRequest request = new CustomerRequest("Khanh Đặng", "0389148852");
     CustomerResponse response = customerService.create(request);
     System.out.println("Đã tạo khách hàng: " + response.getName() + " với ID: " + response.getId());
 
