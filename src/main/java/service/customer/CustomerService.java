@@ -8,7 +8,7 @@ public interface CustomerService {
 
   CustomerResponse create(CustomerRequest request);
 
-  CustomerResponse getById(Long id);
+  CustomerResponse getById(String id);
 
   CustomerResponse getByPhone(String phone);
 

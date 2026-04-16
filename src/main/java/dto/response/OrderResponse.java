@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class OrderResponse {
 
   private final String orderId;
-  private final Long customerId;
+  private final String customerId;
   private final String customerName;
   private final BigDecimal amount;
   private final BigDecimal feeAmount;
@@ -20,7 +20,7 @@ public class OrderResponse {
 
   public OrderResponse(
       String orderId,
-      Long customerId,
+      String customerId,
       String customerName,
       BigDecimal amount,
       BigDecimal feeAmount,
@@ -75,7 +75,7 @@ public class OrderResponse {
     return status;
   }
 
-  public Long getCustomerId() {
+  public String getCustomerId() {
     return customerId;
   }
 

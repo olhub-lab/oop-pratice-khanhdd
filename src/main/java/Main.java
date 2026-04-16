@@ -6,6 +6,8 @@ import dao.PaymentDAO;
 import dao.impl.CustomerDAOImpl;
 import dao.impl.OrderDAOImpl;
 import dao.impl.PaymentDAOImpl;
+import dto.request.CustomerRequest;
+import dto.response.CustomerResponse;
 import service.customer.CustomerService;
 import service.customer.impl.CustomerServiceImpl;
 import service.order.OrderService;
@@ -24,7 +26,7 @@ public class Main {
       OrderDAO orderDAO = new OrderDAOImpl();
       PaymentDAO paymentDAO = new PaymentDAOImpl();
 
-      CustomerService customerService = new CustomerServiceImpl();
+      CustomerService customerService = new CustomerServiceImpl(customerDAO);
       PaymentService paymentService = new PaymentServiceImpl();
       OrderService orderService = new OrderServiceImpl();
 
@@ -38,10 +40,15 @@ public class Main {
     }
   }
 
-  private static void runDemo(
-      CustomerService customerService,
+  private static void runDemo(CustomerService customerService,
       OrderService orderService,
       PaymentService paymentService) {
 
+    CustomerRequest request = new CustomerRequest("Khanh Đặng", "0389148852");
+    CustomerResponse response = customerService.create(request);
+    System.out.println("Đã tạo khách hàng: " + response.getName() + " với ID: " + response.getId());
+
+    System.out.println("Danh sách khách hàng hiện có:");
+    customerService.getAll().forEach(c -> System.out.println("- " + c.getName()));
   }
 }
