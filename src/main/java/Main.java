@@ -27,8 +27,8 @@ public class Main {
       PaymentDAO paymentDAO = new PaymentDAOImpl();
 
       CustomerService customerService = new CustomerServiceImpl(customerDAO);
+      OrderService orderService = new OrderServiceImpl(orderDAO, customerDAO);
       PaymentService paymentService = new PaymentServiceImpl();
-      OrderService orderService = new OrderServiceImpl();
 
       System.out.println("--- Bắt đầu chạy ứng dụng ---");
 
