@@ -14,13 +14,13 @@ public class DBConnection {
 
   private static DBConnection instance;
   private final HikariDataSource dataSource;
-  private static final String CONFIG_FILE = "application.properties";
+  private static final String CONFIG_FILE = "application.yml";
 
   private DBConnection() {
     Properties props = new Properties();
     try (InputStream input = getClass().getClassLoader().getResourceAsStream(CONFIG_FILE)) {
       if (input == null) {
-        throw new ApplicationPropertiesException("Không tìm thấy file application.properties");
+        throw new ApplicationPropertiesException("Không tìm thấy file application.yml");
       }
       props.load(input);
       HikariConfig config = new HikariConfig();

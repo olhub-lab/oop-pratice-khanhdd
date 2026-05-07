@@ -2,6 +2,7 @@ package com.khanh.ordermanagement.service.customer;
 
 import com.khanh.ordermanagement.dto.request.CustomerRequest;
 import com.khanh.ordermanagement.dto.response.CustomerResponse;
+import com.khanh.ordermanagement.dto.response.PageResponse;
 import java.util.List;
 
 public interface CustomerService {
@@ -12,5 +13,5 @@ public interface CustomerService {
 
   CustomerResponse getByPhone(String phone);
 
-  List<CustomerResponse> getAll();
+  PageResponse<CustomerResponse> getAll(int page, int size);
 }

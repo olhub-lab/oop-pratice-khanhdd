@@ -85,18 +85,35 @@ public class CustomerDAOImpl implements CustomerDAO {
   }
 
   @Override
-  public List<Customer> findAll() {
-    logger.info("INFO: Entering findAll() method.");
-    String sql = "SELECT * FROM customers";
+  public List<Customer> findAll(int page, int size) {
+    int offset = page * size;
+    logger.info("INFO: Entering findAll() with page: {}, size: {}", page, size);
 
-    logger.debug("DEBUG: Executing SQL: {}", sql);
+    String sql = "SELECT * FROM customers LIMIT ? OFFSET ?";
+
+    logger.debug("DEBUG: Executing SQL: {} | Params: [{}, {}]", sql, size, offset);
     try {
-      List<Customer> customers = jdbcTemplate.query(sql, customerRowMapper());
-      logger.info("INFO: Successfully fetched {} customers.", customers.size());
+      List<Customer> customers = jdbcTemplate.query(sql, customerRowMapper(), size, offset);
+
+      logger.info("INFO: Successfully fetched {} customers for page {}.", customers.size(), page);
       return customers;
     } catch (DataAccessException e) {
-      logger.error("ERROR: Failed to fetch all customers", e);
-      throw new DatabaseException("Database error during findAll", e);
+      logger.error("ERROR: Failed to fetch paginated customers", e);
+      throw new DatabaseException("Database error during findAll with pagination", e);
+    }
+
+  }
+  @Override
+  public int count() {
+    logger.info("INFO: Counting total customers in database.");
+    String sql = "SELECT COUNT(*) FROM customers";
+
+    try {
+      Integer total = jdbcTemplate.queryForObject(sql, Integer.class);
+      return total != null ? total : 0;
+    } catch (DataAccessException e) {
+      logger.error("ERROR: Failed to count customers", e);
+      throw new DatabaseException("Database error during count", e);
     }
   }
 

@@ -2,6 +2,7 @@ package com.khanh.ordermanagement.service.customer.impl;
 
 import com.khanh.ordermanagement.dto.request.CustomerRequest;
 import com.khanh.ordermanagement.dto.response.CustomerResponse;
+import com.khanh.ordermanagement.dto.response.PageResponse;
 import com.khanh.ordermanagement.exception.NotFoundException;
 import com.khanh.ordermanagement.exception.database.DuplicateRecordException;
 import com.khanh.ordermanagement.exception.database.ServiceException;
@@ -75,15 +76,33 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<CustomerResponse> getAll() {
-    logger.info("INFO: Entering getAll() method.");
+  public PageResponse<CustomerResponse> getAll(int page, int size) {
+    logger.info("INFO: Entering getAll(page={}, size={}) method.", page, size);
 
-    List<Customer> customers = customerDAO.findAll();
-    logger.debug("DEBUG: Retrieved {} customers from database.", customers.size());
+    List<Customer> customers = customerDAO.findAll(page, size);
 
-    return customers.stream()
+    int totalElements = customerDAO.count();
+
+    logger.debug("DEBUG: Retrieved {} customers for current page. Total elements: {}", customers.size(), totalElements);
+
+    List<CustomerResponse> content = customers.stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
+
+
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+    boolean hasNext = page < totalPages - 1;
+    boolean hasPrevious = page > 0;
+
+    return new PageResponse<>(
+        content,
+        totalElements,
+        totalPages,
+        page,
+        size,
+        hasNext,
+        hasPrevious
+    );
   }
 
   @Override

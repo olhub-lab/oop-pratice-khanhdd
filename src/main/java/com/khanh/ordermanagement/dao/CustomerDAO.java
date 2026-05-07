@@ -12,5 +12,6 @@ public interface CustomerDAO {
 
   Optional<Customer> findByPhone(String phone);
 
-  List<Customer> findAll();
+  List<Customer> findAll(int page, int size);
+  int count();
 }

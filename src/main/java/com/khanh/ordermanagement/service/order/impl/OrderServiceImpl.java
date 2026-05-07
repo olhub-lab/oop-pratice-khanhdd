@@ -110,7 +110,15 @@ public class OrderServiceImpl implements OrderService {
     int totalPages = (int) Math.ceil((double) totalElements / size);
     logger.info("INFO: List success. Total elements: {}", totalElements);
 
-    return new PageResponse<>(content, totalElements, totalPages, page < totalPages - 1, page > 0);
+    return new PageResponse<>(
+        content,
+        (long) totalElements,
+        totalPages,
+        page,
+        size,
+        page < totalPages - 1,
+        page > 0
+    );
   }
 
   @Override
