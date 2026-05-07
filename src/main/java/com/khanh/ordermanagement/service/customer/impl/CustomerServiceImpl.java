@@ -17,14 +17,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Hoàn chỉnh theo chuẩn Spring Boot REST API
- * Loại bỏ quản lý Connection thủ công, thay bằng @Transactional
- */
+
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-  // Rule: Dùng SLF4J để ghi log 4 mức chuẩn công nghiệp
   private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
   private final CustomerDAO customerDAO;
@@ -34,14 +30,12 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
   @Override
-  @Transactional // Tự động mở/đóng/rollback transaction
+  @Transactional
   public CustomerResponse create(CustomerRequest request) {
     logger.info("INFO: Entering create(CustomerRequest) method for: {}", request.getName());
 
-    // 1. Validation logic từ DTO
     request.validate();
 
-    // 2. Check trùng số điện thoại - Log DEBUG để truy vết
     logger.debug("DEBUG: Checking if phone {} already exists", request.getPhone());
     customerDAO.findByPhone(request.getPhone()).ifPresent(c -> {
       logger.warn("WARNING: Phone number {} is already registered", request.getPhone());
@@ -49,28 +43,25 @@ public class CustomerServiceImpl implements CustomerService {
     });
 
     try {
-      // 3. Mapping sang Entity
       Customer customer = new Customer(
           UUID.randomUUID().toString(),
           request.getName(),
           request.getPhone()
       );
 
-      // 4. Lưu vào DB thông qua DAO (DAO giờ đã dùng JdbcTemplate)
       Customer savedCustomer = customerDAO.save(customer);
 
       logger.info("INFO: Customer created successfully with ID: {}", savedCustomer.getId());
       return mapToResponse(savedCustomer);
 
     } catch (Exception e) {
-      // Log ERROR kèm StackTrace để debug hệ thống
       logger.error("ERROR: Critical system error during customer creation", e);
       throw new ServiceException("Internal system error while creating customer", e);
     }
   }
 
   @Override
-  @Transactional(readOnly = true) // Tối ưu cho các truy vấn chỉ đọc
+  @Transactional(readOnly = true)
   public CustomerResponse getById(String id) {
     logger.info("INFO: Entering getById(String) method. ID: {}", id);
 
@@ -108,9 +99,6 @@ public class CustomerServiceImpl implements CustomerService {
         });
   }
 
-  /**
-   * Helper method để map Entity sang DTO
-   */
   private CustomerResponse mapToResponse(Customer customer) {
     return new CustomerResponse(
         customer.getId(),
