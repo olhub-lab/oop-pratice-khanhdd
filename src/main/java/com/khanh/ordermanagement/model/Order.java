@@ -10,25 +10,28 @@ import java.util.UUID;
 
 public class Order {
 
-  private final String id;
-  private final String customerId;
-  private final String customerName;
+  private String id;
+  private String customerId;
+  private String customerName;
 
-  private final BigDecimal amount;
+  private BigDecimal amount;
   private BigDecimal feeAmount;
   private BigDecimal discountAmount;
   private BigDecimal finalAmount;
 
   private OrderStatus status;
-  private final PaymentMethod paymentMethod;
+  private PaymentMethod paymentMethod;
 
-  private final LocalDateTime createdAt;
+  private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
   private String cancelReason;
 
   private static final BigDecimal DEFAULT_FEE = BigDecimal.ZERO;
   private static final BigDecimal DEFAULT_DISCOUNT = BigDecimal.ZERO;
+
+  public Order() {
+  }
 
   public Order(Customer customer, BigDecimal amount, PaymentMethod paymentMethod) {
     this.id = UUID.randomUUID().toString();
@@ -45,6 +48,54 @@ public class Order {
     this.discountAmount = DEFAULT_DISCOUNT;
 
     this.calculateFinalAmount();
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setCustomerId(String customerId) {
+    this.customerId = customerId;
+  }
+
+  public void setCustomerName(String customerName) {
+    this.customerName = customerName;
+  }
+
+  public void setAmount(BigDecimal amount) {
+    this.amount = amount;
+  }
+
+  public void setFeeAmount(BigDecimal feeAmount) {
+    this.feeAmount = feeAmount;
+  }
+
+  public void setDiscountAmount(BigDecimal discountAmount) {
+    this.discountAmount = discountAmount;
+  }
+
+  public void setFinalAmount(BigDecimal finalAmount) {
+    this.finalAmount = finalAmount;
+  }
+
+  public void setStatus(OrderStatus status) {
+    this.status = status;
+  }
+
+  public void setPaymentMethod(PaymentMethod paymentMethod) {
+    this.paymentMethod = paymentMethod;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public void setCancelReason(String cancelReason) {
+    this.cancelReason = cancelReason;
   }
 
   private void calculateFinalAmount() {
