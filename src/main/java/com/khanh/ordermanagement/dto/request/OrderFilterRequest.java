@@ -13,8 +13,8 @@ public class OrderFilterRequest {
   private LocalDateTime fromDate;
   private LocalDateTime toDate;
 
-  private Integer page = 0;
-  private Integer size = 10;
+  private Integer page;
+  private Integer size;
 
   private String sort;
   public OrderFilterRequest(
@@ -24,8 +24,8 @@ public class OrderFilterRequest {
       LocalDateTime fromDate,
       LocalDateTime toDate,
       String sort,
-      int page,
-      int size) {
+      Integer page,
+      Integer size) {
     this.customerId = customerId;
     this.status = status;
     this.paymentMethod = paymentMethod;
