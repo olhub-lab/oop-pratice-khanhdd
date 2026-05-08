@@ -74,22 +74,19 @@ public class OrderDAOImpl implements OrderDAO {
 
   @Override
   public List<Order> findAll(OrderFilterRequest filter) {
+    int pageSize = (filter.getSize() == null || filter.getSize() <= 0) ? 10 : filter.getSize();
+    int pageNumber = (filter.getPage() == null || filter.getPage() < 0) ? 0 : filter.getPage();
+    int offset = pageNumber * pageSize;
     StringBuilder sql = new StringBuilder("SELECT * FROM orders WHERE 1=1");
     List<Object> params = new ArrayList<>();
 
     buildWhereClause(sql, params, filter);
 
-    if ("amount_asc".equals(filter.getSort())) {
-      sql.append(" ORDER BY amount ASC");
-    } else if ("amount_desc".equals(filter.getSort())) {
-      sql.append(" ORDER BY amount DESC");
-    } else {
-      sql.append(" ORDER BY created_at DESC");
-    }
-
+    sql.append(" ORDER BY created_at DESC");
     sql.append(" LIMIT ? OFFSET ?");
-    params.add(filter.getSize());
-    params.add(filter.getPage() * filter.getSize());
+
+    params.add(pageSize);
+    params.add(offset);
 
     return jdbcTemplate.query(sql.toString(), orderRowMapper(), params.toArray());
   }
