@@ -31,9 +31,9 @@ public class OrderDAOImpl implements OrderDAO {
 
   @Override
   public Order save(Order order) {
-    String sql = "INSERT INTO orders (id, customer_id, customer_name, amount, fee_amount, "
-        + "discount_amount, final_amount, status, payment_method, created_at, updated_at) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO orders (id, customer_id, customer_name, amount, fee_amount, " +
+        "discount_amount, final_amount, status, payment_method, created_at, updated_at) " +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try {
       jdbcTemplate.update(sql, order.getId(), order.getCustomerId(), order.getCustomerName(),
           order.getAmount(), order.getFeeAmount(), order.getDiscountAmount(),

@@ -24,29 +24,30 @@ public class PaymentController {
 
   @PostMapping
   public ResponseEntity<PaymentResponse> create(@RequestBody PaymentRequest request) {
-    logger.info("REST: Request to create payment for Order ID: {}", request.getOrderId());
+    logger.info("REST: Request to process payment for Order: {}", request.getOrderId());
+    logger.debug("REST: Payment request data: {}", request);
     PaymentResponse response = paymentService.create(request);
+    logger.info("REST: Payment processed. Result: {}", response.getStatus());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
   @GetMapping("/{paymentId}")
   public ResponseEntity<PaymentResponse> getDetail(@PathVariable String paymentId) {
-    logger.info("REST: Request to get payment detail: {}", paymentId);
+    logger.info("REST: Getting payment detail for ID: {}", paymentId);
     return ResponseEntity.ok(paymentService.getDetail(paymentId));
   }
 
   @GetMapping("/order/{orderId}")
   public ResponseEntity<List<PaymentResponse>> getByOrderId(@PathVariable String orderId) {
-    logger.info("REST: Request to get payments for Order ID: {}", orderId);
-    List<PaymentResponse> responses = paymentService.getByOrderId(orderId);
-    return ResponseEntity.ok(responses);
+    logger.info("REST: Fetching payment history for Order: {}", orderId);
+    return ResponseEntity.ok(paymentService.getByOrderId(orderId));
   }
 
   @PutMapping("/{paymentId}/status")
   public ResponseEntity<Void> updateStatus(
       @PathVariable String paymentId,
       @RequestParam String status) {
-    logger.info("REST: Request to update payment {} status to {}", paymentId, status);
+    logger.info("REST: Manually updating payment {} to status {}", paymentId, status);
     paymentService.updateStatus(paymentId, status);
     return ResponseEntity.noContent().build();
   }
