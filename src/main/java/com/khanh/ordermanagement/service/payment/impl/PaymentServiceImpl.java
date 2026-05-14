@@ -5,7 +5,7 @@ import com.khanh.ordermanagement.client.impl.BankPaymentGateway;
 import com.khanh.ordermanagement.client.impl.MoMoPaymentGateway;
 import com.khanh.ordermanagement.dao.OrderDAO;
 import com.khanh.ordermanagement.dao.PaymentDAO;
-import com.khanh.ordermanagement.dto.request.PaymentGatewayRequest; // Request mới của mày đây
+import com.khanh.ordermanagement.dto.request.PaymentGatewayRequest;
 import com.khanh.ordermanagement.dto.request.PaymentRequest;
 import com.khanh.ordermanagement.dto.response.PaymentGatewayResponse;
 import com.khanh.ordermanagement.dto.response.PaymentResponse;
@@ -96,10 +96,16 @@ public class PaymentServiceImpl implements PaymentService {
     Payment payment = paymentDAO.findById(paymentId)
         .orElseThrow(() -> new NotFoundException("Payment", paymentId));
     try {
+      payment.setStatus(PaymentStatus.valueOf(status.toUpperCase()));
       paymentDAO.update(payment);
-      logger.info("INFO: Updated status for Payment: {}", paymentId);
+
+      logger.info("INFO: Updated status for Payment: {} to {}", paymentId, status);
+    } catch (IllegalArgumentException e) {
+      logger.error("ERROR: Status truyền vào không hợp lệ: {}", status);
+      throw new RuntimeException("Status không hợp lệ: " + status);
     } catch (Exception e) {
       logger.error("ERROR: Failed to update payment status", e);
+      throw e;
     }
   }
 

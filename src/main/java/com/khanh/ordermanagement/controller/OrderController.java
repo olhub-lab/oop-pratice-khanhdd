@@ -28,14 +28,17 @@ public class OrderController {
   public ResponseEntity<OrderResponse> create(@RequestBody OrderRequest request) {
     logger.info("REST: Request to create order for customer: {}", request.getCustomerId());
     logger.debug("REST: Order Detail: {}", request);
+
     OrderResponse response = orderService.create(request);
+
     logger.info("REST: Order created successfully with ID: {}", response.getOrderId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<OrderResponse> getDetail(@PathVariable String id) {
+  public ResponseEntity<OrderResponse> getById(@PathVariable String id) {
     logger.info("REST: Getting order detail for ID: {}", id);
+
     return ResponseEntity.ok(orderService.getDetail(id));
   }
 
@@ -43,6 +46,7 @@ public class OrderController {
   public ResponseEntity<PageResponse<OrderResponse>> list(OrderFilterRequest request) {
     logger.info("REST: Request list orders with filters");
     logger.debug("REST: Filter params: {}", request);
+
     return ResponseEntity.ok(orderService.list(request));
   }
 
@@ -50,6 +54,7 @@ public class OrderController {
   public ResponseEntity<CancelOrderResponse> cancel(@RequestBody CancelOrderRequest request) {
     logger.info("REST: Request to cancel order ID: {}", request.getOrderId());
     logger.debug("REST: Cancel reason: {}", request.getReason());
+
     return ResponseEntity.ok(orderService.cancel(request));
   }
 }

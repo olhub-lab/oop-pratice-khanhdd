@@ -8,19 +8,19 @@ import com.khanh.ordermanagement.model.enums.PaymentStatus;
 
 public class Payment {
 
-  private final String paymentId;
+  private final String Id;
   private final String orderId;
   private final BigDecimal finalAmount;
   private final PaymentMethod paymentMethod;
   private final LocalDateTime createdAt;
-  private final PaymentStatus status;
+  private  PaymentStatus status;
 
   public Payment(
       String orderId,
       BigDecimal finalAmount,
       PaymentMethod paymentMethod,
       PaymentStatus status) {
-    this.paymentId = UUID.randomUUID().toString();
+    this.Id = UUID.randomUUID().toString();
     this.orderId = orderId;
     this.finalAmount = finalAmount;
     this.paymentMethod = paymentMethod;
@@ -29,13 +29,13 @@ public class Payment {
   }
 
   public Payment(
-      String paymentId,
+      String Id,
       String orderId,
       BigDecimal finalAmount,
       PaymentMethod paymentMethod,
       LocalDateTime createdAt,
       PaymentStatus status) {
-    this.paymentId = paymentId;
+    this.Id = Id;
     this.orderId = orderId;
     this.finalAmount = finalAmount;
     this.paymentMethod = paymentMethod;
@@ -44,7 +44,7 @@ public class Payment {
   }
 
   public String getPaymentId() {
-    return paymentId;
+    return Id;
   }
 
   public String getOrderId() {
@@ -66,4 +66,9 @@ public class Payment {
   public LocalDateTime getCreatedAt() {
     return createdAt;
   }
+
+  public void setStatus(PaymentStatus status) {
+    this.status = status;
+  }
+
 }

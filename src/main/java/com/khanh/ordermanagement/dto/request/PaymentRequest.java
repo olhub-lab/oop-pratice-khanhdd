@@ -1,9 +1,8 @@
 package com.khanh.ordermanagement.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PaymentRequest {
-  @JsonProperty("orderId")
+
   private String orderId;
 
 
