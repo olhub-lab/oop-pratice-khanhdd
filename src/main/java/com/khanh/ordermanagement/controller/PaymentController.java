@@ -24,30 +24,29 @@ public class PaymentController {
 
   @PostMapping
   public ResponseEntity<PaymentResponse> create(@RequestBody PaymentRequest request) {
-    logger.info("REST: Request to create payment for Order ID: {}", request.getOrderId());
-    PaymentResponse response = paymentService.create(request);
-    return new ResponseEntity<>(response, HttpStatus.CREATED);
+    logger.info("REST: Request to process payment for Order: {}", request.getOrderId());
+    logger.debug("REST: Payment request data: {}", request);
+    return new ResponseEntity<>(paymentService.create(request), HttpStatus.CREATED);
   }
 
-  @GetMapping("/{paymentId}")
-  public ResponseEntity<PaymentResponse> getDetail(@PathVariable String paymentId) {
-    logger.info("REST: Request to get payment detail: {}", paymentId);
-    return ResponseEntity.ok(paymentService.getDetail(paymentId));
+  @GetMapping("/{id}")
+  public ResponseEntity<PaymentResponse> getById(@PathVariable String id) {
+    logger.info("REST: Getting payment detail for ID: {}", id);
+    return ResponseEntity.ok(paymentService.getDetail(id));
   }
 
   @GetMapping("/order/{orderId}")
   public ResponseEntity<List<PaymentResponse>> getByOrderId(@PathVariable String orderId) {
-    logger.info("REST: Request to get payments for Order ID: {}", orderId);
-    List<PaymentResponse> responses = paymentService.getByOrderId(orderId);
-    return ResponseEntity.ok(responses);
+    logger.info("REST: Fetching payment history for Order: {}", orderId);
+    return ResponseEntity.ok(paymentService.getByOrderId(orderId));
   }
 
-  @PutMapping("/{paymentId}/status")
+  @PutMapping("/{id}/status")
   public ResponseEntity<Void> updateStatus(
-      @PathVariable String paymentId,
+      @PathVariable String id,
       @RequestParam String status) {
-    logger.info("REST: Request to update payment {} status to {}", paymentId, status);
-    paymentService.updateStatus(paymentId, status);
+    logger.info("REST: Manually updating payment {} to status {}", id, status);
+    paymentService.updateStatus(id, status);
     return ResponseEntity.noContent().build();
   }
 }

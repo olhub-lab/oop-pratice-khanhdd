@@ -6,26 +6,21 @@ import com.khanh.ordermanagement.model.enums.PaymentMethod;
 
 public class OrderRequest {
 
-  private Long customerId;
-  private String customerName;
+  private String customerId;
   private BigDecimal amount;
   private PaymentMethod paymentMethod;
 
-  public OrderRequest(Long customerId, String customerName, BigDecimal amount,
+  public OrderRequest(String customerId, BigDecimal amount,
       PaymentMethod paymentMethod) {
     this.customerId = customerId;
-    this.customerName = customerName;
     this.amount = amount;
     this.paymentMethod = paymentMethod;
   }
 
-  public Long getCustomerId() {
+  public String getCustomerId() {
     return customerId;
   }
 
-  public String getCustomerName() {
-    return customerName;
-  }
 
   public BigDecimal getAmount() {
     return amount;
@@ -36,12 +31,8 @@ public class OrderRequest {
   }
 
   public void validate() {
-    if (this.customerId == null || this.customerId <= 0) {
+    if (this.customerId == null) {
       throw new BadRequestException("CustomerId must be positive");
-    }
-
-    if (this.customerName == null || this.customerName.isBlank()) {
-      throw new BadRequestException("CustomerName is required");
     }
 
     if (this.amount == null || this.amount.compareTo(BigDecimal.ZERO) <= 0) {
