@@ -1,6 +1,6 @@
 package com.khanh.ordermanagement.repository;
 
-import com.khanh.ordermanagement.model.Order;
+import com.khanh.ordermanagement.entity.Order;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

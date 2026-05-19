@@ -9,8 +9,8 @@
   import com.khanh.ordermanagement.exception.BadRequestException;
   import com.khanh.ordermanagement.exception.NotFoundException;
   import com.khanh.ordermanagement.exception.database.ServiceException;
-  import com.khanh.ordermanagement.model.Order;
-  import com.khanh.ordermanagement.model.Customer;
+  import com.khanh.ordermanagement.entity.Order;
+  import com.khanh.ordermanagement.entity.Customer;
   import com.khanh.ordermanagement.repository.CustomerRepository;
   import com.khanh.ordermanagement.repository.OrderRepository;
   import com.khanh.ordermanagement.service.order.OrderService;

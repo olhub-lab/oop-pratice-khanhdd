@@ -2,7 +2,7 @@ package com.khanh.ordermanagement.dto.request;
 
 import com.khanh.ordermanagement.exception.BadRequestException;
 import java.math.BigDecimal;
-import com.khanh.ordermanagement.model.enums.PaymentMethod;
+import com.khanh.ordermanagement.entity.enums.PaymentMethod;
 
 public class OrderRequest {
 

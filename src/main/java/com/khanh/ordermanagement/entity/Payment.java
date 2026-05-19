@@ -1,11 +1,11 @@
-package com.khanh.ordermanagement.model;
+package com.khanh.ordermanagement.entity;
 
 import java.math.BigDecimal;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import com.khanh.ordermanagement.model.enums.PaymentMethod;
-import com.khanh.ordermanagement.model.enums.PaymentStatus;
+import com.khanh.ordermanagement.entity.enums.PaymentMethod;
+import com.khanh.ordermanagement.entity.enums.PaymentStatus;
 
 @Entity
 @Table(name="payments")

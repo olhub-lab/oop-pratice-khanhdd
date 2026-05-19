@@ -1,6 +1,6 @@
 package com.khanh.ordermanagement.repository;
 
-import com.khanh.ordermanagement.model.Payment;
+import com.khanh.ordermanagement.entity.Payment;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

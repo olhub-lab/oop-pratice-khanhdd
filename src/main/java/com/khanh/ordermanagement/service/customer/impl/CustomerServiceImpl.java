@@ -6,7 +6,7 @@ import com.khanh.ordermanagement.dto.response.PageResponse;
 import com.khanh.ordermanagement.exception.NotFoundException;
 import com.khanh.ordermanagement.exception.database.DuplicateRecordException;
 import com.khanh.ordermanagement.exception.database.ServiceException;
-import com.khanh.ordermanagement.model.Customer;
+import com.khanh.ordermanagement.entity.Customer;
 import com.khanh.ordermanagement.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

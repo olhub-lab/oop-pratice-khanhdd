@@ -1,4 +1,4 @@
-package com.khanh.ordermanagement.model;
+package com.khanh.ordermanagement.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
