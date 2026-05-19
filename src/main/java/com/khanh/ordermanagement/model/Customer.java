@@ -1,13 +1,27 @@
 package com.khanh.ordermanagement.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "customers")
 public class Customer {
 
-  private final String id;
+  @Id
+  @Column(name = "id", nullable = false)
+  private String id;
+
+  @Column(name = "name",  nullable = false)
   private String name;
+
+  @Column(name = "phone", nullable = false, unique = true)
   private String phone;
-  private final LocalDateTime createdAt;
+
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
+
+  public Customer() {
+  }
 
   public Customer(String id, String name, String phone) {
     this.id = id;
