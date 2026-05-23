@@ -12,7 +12,6 @@ import com.khanh.ordermanagement.entity.Order;
 import com.khanh.ordermanagement.entity.Payment;
 import com.khanh.ordermanagement.entity.enums.PaymentMethod;
 import com.khanh.ordermanagement.entity.enums.PaymentStatus;
-import com.khanh.ordermanagement.repository.OrderRepository;
 import com.khanh.ordermanagement.repository.PaymentRepository;
 import com.khanh.ordermanagement.service.payment.PaymentService;
 import org.slf4j.Logger;
@@ -29,20 +28,16 @@ public class PaymentServiceImpl implements PaymentService {
   private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
   private final PaymentRepository paymentRepository;
-  private final OrderRepository orderRepository;
 
-  public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository) {
+  public PaymentServiceImpl(PaymentRepository paymentRepository) {
     this.paymentRepository = paymentRepository;
-    this.orderRepository = orderRepository;
   }
 
   @Override
   @Transactional
-  public PaymentResponse create(PaymentRequest request) {
+  public PaymentResponse create(PaymentRequest request, Order order) {
     logger.info("INFO: Processing payment for Order ID: {}", request.getOrderId());
 
-    Order order = orderRepository.findById(request.getOrderId())
-        .orElseThrow(() -> new NotFoundException("Order", request.getOrderId()));
 
     PaymentGateway gateway;
     if (order.getPaymentMethod() == PaymentMethod.E_WALLET) {

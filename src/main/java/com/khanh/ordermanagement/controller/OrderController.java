@@ -6,6 +6,7 @@ import com.khanh.ordermanagement.dto.request.OrderRequest;
 import com.khanh.ordermanagement.dto.response.CancelOrderResponse;
 import com.khanh.ordermanagement.dto.response.OrderResponse;
 import com.khanh.ordermanagement.dto.response.PageResponse;
+import com.khanh.ordermanagement.facade.order.OrderFacadeService;
 import com.khanh.ordermanagement.service.order.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +20,11 @@ public class OrderController {
 
   private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
   private final OrderService orderService;
+  private final OrderFacadeService orderFacadeService;
 
-  public OrderController(OrderService orderService) {
+  public OrderController(OrderService orderService, OrderFacadeService orderFacadeService) {
     this.orderService = orderService;
+    this.orderFacadeService = orderFacadeService;
   }
 
   @PostMapping
@@ -29,7 +32,7 @@ public class OrderController {
     logger.info("REST: Request to create order for customer: {}", request.getCustomerId());
     logger.debug("REST: Order Detail: {}", request);
 
-    OrderResponse response = orderService.create(request);
+    OrderResponse response = orderFacadeService.create(request);
 
     logger.info("REST: Order created successfully with ID: {}", response.getOrderId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);

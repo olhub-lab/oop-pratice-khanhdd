@@ -77,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   @Transactional(readOnly = true)
   public PageResponse<CustomerResponse> getAll(int page, int size) {
-    logger.info("INFO: Entering getAll(page={}, size={}) method bằng Spring Data JPA.", page, size);
+    logger.info("INFO: Entering getAll(page={}, size={}) method using Spring Data JPA.", page, size);
 
     org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
 

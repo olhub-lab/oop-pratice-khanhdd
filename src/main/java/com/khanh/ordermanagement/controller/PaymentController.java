@@ -2,6 +2,7 @@ package com.khanh.ordermanagement.controller;
 
 import com.khanh.ordermanagement.dto.request.PaymentRequest;
 import com.khanh.ordermanagement.dto.response.PaymentResponse;
+import com.khanh.ordermanagement.facade.payment.PaymentFacadeService;
 import com.khanh.ordermanagement.service.payment.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +18,19 @@ public class PaymentController {
 
   private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
   private final PaymentService paymentService;
+  private final PaymentFacadeService paymentFacadeService;
 
-  public PaymentController(PaymentService paymentService) {
+  public PaymentController(PaymentService paymentService, PaymentFacadeService paymentFacadeService) {
+
     this.paymentService = paymentService;
+    this.paymentFacadeService = paymentFacadeService;
   }
 
   @PostMapping
   public ResponseEntity<PaymentResponse> create(@RequestBody PaymentRequest request) {
     logger.info("REST: Request to process payment for Order: {}", request.getOrderId());
     logger.debug("REST: Payment request data: {}", request);
-    return new ResponseEntity<>(paymentService.create(request), HttpStatus.CREATED);
+    return new ResponseEntity<>(paymentFacadeService.create(request), HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")

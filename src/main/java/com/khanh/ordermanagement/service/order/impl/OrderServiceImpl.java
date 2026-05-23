@@ -11,7 +11,6 @@
   import com.khanh.ordermanagement.exception.database.ServiceException;
   import com.khanh.ordermanagement.entity.Order;
   import com.khanh.ordermanagement.entity.Customer;
-  import com.khanh.ordermanagement.repository.CustomerRepository;
   import com.khanh.ordermanagement.repository.OrderRepository;
   import com.khanh.ordermanagement.service.order.OrderService;
   import org.slf4j.Logger;
@@ -28,11 +27,9 @@
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
 
-    public OrderServiceImpl(OrderRepository orderRepository, CustomerRepository customerRepository) {
+    public OrderServiceImpl(OrderRepository orderRepository) {
       this.orderRepository = orderRepository;
-      this.customerRepository = customerRepository;
     }
 
     @Override
@@ -41,8 +38,7 @@
       logger.info("INFO: Creating new order for customer: {}", request.getCustomerId());
       request.validate();
 
-      Customer customer = customerRepository.findById(String.valueOf(request.getCustomerId()))
-          .orElseThrow(() -> new NotFoundException("Customer", String.valueOf(request.getCustomerId())));
+      Customer customer = new Customer();
 
       try {
         Order order = new Order(customer, request.getAmount(), request.getPaymentMethod());
@@ -116,10 +112,16 @@
 
     @Override
     @Transactional(readOnly = true)
-    public OrderResponse getDetail(String orderId) {
-      return orderRepository.findById(orderId).map(this::mapToResponse)
-          .orElseThrow(() -> new NotFoundException("Order", orderId));
-    }
+    public java.util.Optional<Order> findEntityById(String orderId) {
+      return orderRepository.findById(orderId);
+      }
+
+      @Override
+      @Transactional(readOnly = true)
+      public OrderResponse getDetail (String orderId){
+        return orderRepository.findById(orderId).map(this::mapToResponse)
+            .orElseThrow(() -> new NotFoundException("Order", orderId));
+      }
 
     private OrderResponse mapToResponse(Order order) {
       return new OrderResponse(
@@ -136,4 +138,4 @@
           order.getUpdatedAt(),
           order.getCancelReason());
     }
-  }
+    }
