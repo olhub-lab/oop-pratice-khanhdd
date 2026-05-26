@@ -8,6 +8,7 @@ import com.khanh.ordermanagement.exception.database.DuplicateRecordException;
 import com.khanh.ordermanagement.exception.database.ServiceException;
 import com.khanh.ordermanagement.entity.Customer;
 import com.khanh.ordermanagement.repository.CustomerRepository;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -112,6 +113,10 @@ public class CustomerServiceImpl implements CustomerService {
           logger.warn("WARNING: Customer not found with phone: {}", phone);
           return new NotFoundException("Customer not found with phone: " + phone);
         });
+  }
+  @Override
+  public Optional<Customer> findById(String id) {
+    return customerRepository.findById(id);
   }
 
   private CustomerResponse mapToResponse(Customer customer) {

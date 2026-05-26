@@ -20,7 +20,7 @@ public class Order {
   @Column(name ="customer_id", nullable = false)
   private String customerId;
 
-  @Column(name ="customer_name", nullable = false)
+  @Column(name ="customer_name")
   private String customerName;
 
   @Column(name ="amount", nullable = false)

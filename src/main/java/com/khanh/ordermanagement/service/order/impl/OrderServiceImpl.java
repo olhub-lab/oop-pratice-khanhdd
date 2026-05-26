@@ -40,6 +40,9 @@
 
       Customer customer = new Customer();
 
+      customer.setId(request.getCustomerId());
+      customer.setName(request.getCustomerName());
+
       try {
         Order order = new Order(customer, request.getAmount(), request.getPaymentMethod());
 

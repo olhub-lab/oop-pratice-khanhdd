@@ -3,6 +3,8 @@ package com.khanh.ordermanagement.facade.order.impl;
 import com.khanh.ordermanagement.dto.request.OrderRequest;
 import com.khanh.ordermanagement.dto.response.CustomerResponse;
 import com.khanh.ordermanagement.dto.response.OrderResponse;
+import com.khanh.ordermanagement.entity.Customer;
+import com.khanh.ordermanagement.exception.NotFoundException;
 import com.khanh.ordermanagement.facade.order.OrderFacadeService;
 import com.khanh.ordermanagement.service.customer.CustomerService;
 import com.khanh.ordermanagement.service.order.OrderService;
@@ -23,7 +25,11 @@ public class OrderFacadeServiceImpl implements OrderFacadeService {
   @Override
   @Transactional
   public OrderResponse create(OrderRequest request) {
-    CustomerResponse customer = customerService.getById(request.getCustomerId());
+    Customer customer = customerService.findById(request.getCustomerId())
+        .orElseThrow(() -> new NotFoundException("Customer", request.getCustomerId()));
+
+    request.setCustomerName(customer.getName());
+
     return orderService.create(request);
   }
 }

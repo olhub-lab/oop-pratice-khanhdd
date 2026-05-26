@@ -11,7 +11,7 @@ public class Customer {
   @Column(name = "id", nullable = false)
   private String id;
 
-  @Column(name = "name",  nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   @Column(name = "phone", nullable = false, unique = true)
@@ -53,13 +53,16 @@ public class Customer {
     return createdAt;
   }
 
+  public void setId(String id) {
+    this.id = id;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
+
   @Override
   public String toString() {
-    return "Customer{" +
-        "id=" + id +
-        ", name='" + name + '\'' +
-        ", phone='" + phone + '\'' +
-        ", createdAt=" + createdAt +
-        '}';
+    return "Customer{" + "id=" + id + ", name='" + name + '\'' + ", phone='" + phone + '\''
+        + ", createdAt=" + createdAt + '}';
   }
 }
