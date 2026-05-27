@@ -32,10 +32,7 @@ public class OrderController {
     logger.info("REST: Request to create order for customer: {}", request.getCustomerId());
     logger.debug("REST: Order Detail: {}", request);
 
-    OrderResponse response = orderFacadeService.create(request);
-
-    logger.info("REST: Order created successfully with ID: {}", response.getOrderId());
-    return new ResponseEntity<>(response, HttpStatus.CREATED);
+    return new ResponseEntity<>(orderFacadeService.create(request), HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")
