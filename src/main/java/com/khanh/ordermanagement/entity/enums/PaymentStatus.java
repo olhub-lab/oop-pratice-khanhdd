@@ -1,4 +1,4 @@
-package com.khanh.ordermanagement.model.enums;
+package com.khanh.ordermanagement.entity.enums;
 
 public enum PaymentStatus {
   UNKNOWN,

@@ -3,17 +3,16 @@ package com.khanh.ordermanagement.service.payment.impl;
 import com.khanh.ordermanagement.client.PaymentGateway;
 import com.khanh.ordermanagement.client.impl.BankPaymentGateway;
 import com.khanh.ordermanagement.client.impl.MoMoPaymentGateway;
-import com.khanh.ordermanagement.dao.OrderDAO;
-import com.khanh.ordermanagement.dao.PaymentDAO;
 import com.khanh.ordermanagement.dto.request.PaymentGatewayRequest;
 import com.khanh.ordermanagement.dto.request.PaymentRequest;
 import com.khanh.ordermanagement.dto.response.PaymentGatewayResponse;
 import com.khanh.ordermanagement.dto.response.PaymentResponse;
 import com.khanh.ordermanagement.exception.NotFoundException;
-import com.khanh.ordermanagement.model.Order;
-import com.khanh.ordermanagement.model.Payment;
-import com.khanh.ordermanagement.model.enums.PaymentMethod;
-import com.khanh.ordermanagement.model.enums.PaymentStatus;
+import com.khanh.ordermanagement.entity.Order;
+import com.khanh.ordermanagement.entity.Payment;
+import com.khanh.ordermanagement.entity.enums.PaymentMethod;
+import com.khanh.ordermanagement.entity.enums.PaymentStatus;
+import com.khanh.ordermanagement.repository.PaymentRepository;
 import com.khanh.ordermanagement.service.payment.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,22 +27,17 @@ public class PaymentServiceImpl implements PaymentService {
 
   private static final Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-  private final PaymentDAO paymentDAO;
-  private final OrderDAO orderDAO;
+  private final PaymentRepository paymentRepository;
 
-  public PaymentServiceImpl(PaymentDAO paymentDAO, OrderDAO orderDAO) {
-    this.paymentDAO = paymentDAO;
-    this.orderDAO = orderDAO;
+  public PaymentServiceImpl(PaymentRepository paymentRepository) {
+    this.paymentRepository = paymentRepository;
   }
 
   @Override
   @Transactional
-  public PaymentResponse create(PaymentRequest request) {
+  public PaymentResponse create(PaymentRequest request, Order order) {
     logger.info("INFO: Processing payment for Order ID: {}", request.getOrderId());
 
-
-    Order order = orderDAO.findById(request.getOrderId())
-        .orElseThrow(() -> new NotFoundException("Order", request.getOrderId()));
 
     PaymentGateway gateway;
     if (order.getPaymentMethod() == PaymentMethod.E_WALLET) {
@@ -53,9 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     PaymentGatewayRequest gatewayRequest = new PaymentGatewayRequest(order.getId(), order.getFinalAmount());
-
     PaymentGatewayResponse gatewayResponse = gateway.process(gatewayRequest);
-
     PaymentStatus status = gatewayResponse.isSuccess() ? PaymentStatus.SUCCESS : PaymentStatus.FAILED;
 
     Payment payment = new Payment(
@@ -65,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
         status
     );
 
-    Payment savedPayment = paymentDAO.save(payment);
+    Payment savedPayment = paymentRepository.save(payment);
 
     logger.info("INFO: Payment result via {}: {} - Message: {}",
         gateway.getClass().getSimpleName(), status, gatewayResponse.getMessage());
@@ -76,7 +68,7 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   @Transactional(readOnly = true)
   public PaymentResponse getDetail(String paymentId) {
-    return paymentDAO.findById(paymentId)
+    return paymentRepository.findById(paymentId)
         .map(this::mapToResponse)
         .orElseThrow(() -> new NotFoundException("Payment", paymentId));
   }
@@ -84,7 +76,7 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   @Transactional(readOnly = true)
   public List<PaymentResponse> getByOrderId(String orderId) {
-    return paymentDAO.findByOrderId(orderId)
+    return paymentRepository.findByOrderId(orderId)
         .stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
@@ -93,13 +85,13 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   @Transactional
   public void updateStatus(String paymentId, String status) {
-    Payment payment = paymentDAO.findById(paymentId)
+    Payment payment = paymentRepository.findById(paymentId)
         .orElseThrow(() -> new NotFoundException("Payment", paymentId));
     try {
-      payment.setStatus(PaymentStatus.valueOf(status.toUpperCase()));
-      paymentDAO.update(payment);
 
+      payment.setStatus(PaymentStatus.valueOf(status.toUpperCase()));
       logger.info("INFO: Updated status for Payment: {} to {}", paymentId, status);
+
     } catch (IllegalArgumentException e) {
       logger.error("ERROR: Status truyền vào không hợp lệ: {}", status);
       throw new RuntimeException("Status không hợp lệ: " + status);
@@ -111,7 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
 
   private PaymentResponse mapToResponse(Payment payment) {
     return new PaymentResponse(
-        payment.getPaymentId(),
+        payment.getId(),
         payment.getOrderId(),
         payment.getFinalAmount(),
         payment.getStatus().name(),

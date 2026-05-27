@@ -6,6 +6,8 @@
   import com.khanh.ordermanagement.dto.request.OrderRequest;
   import com.khanh.ordermanagement.dto.response.OrderResponse;
   import com.khanh.ordermanagement.dto.response.PageResponse;
+  import com.khanh.ordermanagement.entity.Order;
+  import java.util.Optional;
 
   public interface OrderService {
 
@@ -16,4 +18,6 @@
     PageResponse<OrderResponse> list(OrderFilterRequest filterRequest);
 
     CancelOrderResponse cancel(CancelOrderRequest request);
+
+    Optional<Order> findEntityById(String orderId);
   }

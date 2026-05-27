@@ -2,13 +2,15 @@ package com.khanh.ordermanagement.dto.request;
 
 import com.khanh.ordermanagement.exception.BadRequestException;
 import java.math.BigDecimal;
-import com.khanh.ordermanagement.model.enums.PaymentMethod;
+import com.khanh.ordermanagement.entity.enums.PaymentMethod;
 
 public class OrderRequest {
 
   private String customerId;
+  private String customerName;
   private BigDecimal amount;
   private PaymentMethod paymentMethod;
+
 
   public OrderRequest(String customerId, BigDecimal amount,
       PaymentMethod paymentMethod) {
@@ -21,6 +23,13 @@ public class OrderRequest {
     return customerId;
   }
 
+  public String getCustomerName() {
+    return customerName;
+  }
+
+  public void setCustomerName(String customerName) {
+    this.customerName = customerName;
+  }
 
   public BigDecimal getAmount() {
     return amount;

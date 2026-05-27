@@ -1,8 +1,8 @@
 package com.khanh.ordermanagement.dto.request;
 
 import java.time.LocalDateTime;
-import com.khanh.ordermanagement.model.enums.OrderStatus;
-import com.khanh.ordermanagement.model.enums.PaymentMethod;
+import com.khanh.ordermanagement.entity.enums.OrderStatus;
+import com.khanh.ordermanagement.entity.enums.PaymentMethod;
 
 public class OrderFilterRequest {
 

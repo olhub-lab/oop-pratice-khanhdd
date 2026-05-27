@@ -6,12 +6,13 @@ import com.khanh.ordermanagement.dto.response.PageResponse;
 import com.khanh.ordermanagement.exception.NotFoundException;
 import com.khanh.ordermanagement.exception.database.DuplicateRecordException;
 import com.khanh.ordermanagement.exception.database.ServiceException;
-import com.khanh.ordermanagement.model.Customer;
+import com.khanh.ordermanagement.entity.Customer;
+import com.khanh.ordermanagement.repository.CustomerRepository;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.khanh.ordermanagement.dao.CustomerDAO;
 import com.khanh.ordermanagement.service.customer.CustomerService;
 
 import java.util.List;
@@ -24,10 +25,10 @@ public class CustomerServiceImpl implements CustomerService {
 
   private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-  private final CustomerDAO customerDAO;
+  private final CustomerRepository customerRepository;
 
-  public CustomerServiceImpl(CustomerDAO customerDAO) {
-    this.customerDAO = customerDAO;
+  public CustomerServiceImpl(CustomerRepository customerRepository) {
+    this.customerRepository = customerRepository;
   }
 
   @Override
@@ -38,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
     request.validate();
 
     logger.debug("DEBUG: Checking if phone {} already exists", request.getPhone());
-    customerDAO.findByPhone(request.getPhone()).ifPresent(c -> {
+    customerRepository.findByPhone(request.getPhone()).ifPresent(c -> {
       logger.warn("WARNING: Phone number {} is already registered", request.getPhone());
       throw new DuplicateRecordException("Phone number already registered.");
     });
@@ -50,7 +51,7 @@ public class CustomerServiceImpl implements CustomerService {
           request.getPhone()
       );
 
-      Customer savedCustomer = customerDAO.save(customer);
+      Customer savedCustomer = customerRepository.save(customer);
 
       logger.info("INFO: Customer created successfully with ID: {}", savedCustomer.getId());
       return mapToResponse(savedCustomer);
@@ -66,7 +67,7 @@ public class CustomerServiceImpl implements CustomerService {
   public CustomerResponse getById(String id) {
     logger.info("INFO: Entering getById(String) method. ID: {}", id);
 
-    return customerDAO.findById(id)
+    return customerRepository.findById(id)
         .map(this::mapToResponse)
         .orElseThrow(() -> {
           logger.warn("WARNING: Customer not found with ID: {}", id);
@@ -77,31 +78,27 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   @Transactional(readOnly = true)
   public PageResponse<CustomerResponse> getAll(int page, int size) {
-    logger.info("INFO: Entering getAll(page={}, size={}) method.", page, size);
+    logger.info("INFO: Entering getAll(page={}, size={}) method using Spring Data JPA.", page, size);
 
-    List<Customer> customers = customerDAO.findAll(page, size);
+    org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
 
-    int totalElements = customerDAO.count();
+    org.springframework.data.domain.Page<Customer> customerPage = customerRepository.findAll(pageable);
 
-    logger.debug("DEBUG: Retrieved {} customers for current page. Total elements: {}", customers.size(), totalElements);
+    logger.debug("DEBUG: Retrieved {} customers. Total elements: {}",
+        customerPage.getNumberOfElements(), customerPage.getTotalElements());
 
-    List<CustomerResponse> content = customers.stream()
+    List<CustomerResponse> content = customerPage.getContent().stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
 
-
-    int totalPages = (int) Math.ceil((double) totalElements / size);
-    boolean hasNext = page < totalPages - 1;
-    boolean hasPrevious = page > 0;
-
     return new PageResponse<>(
         content,
-        totalElements,
-        totalPages,
+        (int) customerPage.getTotalElements(),
+        customerPage.getTotalPages(),
         page,
         size,
-        hasNext,
-        hasPrevious
+        customerPage.hasNext(),
+        customerPage.hasPrevious()
     );
   }
 
@@ -110,12 +107,16 @@ public class CustomerServiceImpl implements CustomerService {
   public CustomerResponse getByPhone(String phone) {
     logger.info("INFO: Entering getByPhone(String) method. Phone: {}", phone);
 
-    return customerDAO.findByPhone(phone)
+    return customerRepository.findByPhone(phone)
         .map(this::mapToResponse)
         .orElseThrow(() -> {
           logger.warn("WARNING: Customer not found with phone: {}", phone);
           return new NotFoundException("Customer not found with phone: " + phone);
         });
+  }
+  @Override
+  public Optional<Customer> findById(String id) {
+    return customerRepository.findById(id);
   }
 
   private CustomerResponse mapToResponse(Customer customer) {
